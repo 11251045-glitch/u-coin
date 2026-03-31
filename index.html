@@ -1,1077 +1,1313 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="light">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>U-Sport 集點小幫手</title>
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="theme-color" content="#FF6B35"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="U-Sport"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Exo+2:wght@400;700;800;900&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      /* ── U-Sport 官方配色 ── */
-      --orange:     #FF6B35;
-      --orange2:    #FF8C5A;
-      --orange-d:   #E5501A;
-      --red:        #FF3B3B;
-      --gold:       #FFB020;
-      --gold-light: #FFD060;
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>U-Sport 集點小幫手</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#FF6B35"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="U-Sport"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Exo+2:wght@400;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════
+   CSS 變數 & 主題
+══════════════════════════════════ */
+:root{
+  --orange:#FF6B35;--orange2:#FF8C5A;--orange-d:#E5501A;
+  --red:#FF3B3B;--gold:#FFB020;--gold-l:#FFD060;--green:#4ADE80;
+  --grad-main:linear-gradient(135deg,#FF6B35,#FF3B3B);
+  --grad-gold:linear-gradient(135deg,#FFD060,#FF9500);
+  --grad-dark:linear-gradient(160deg,#1C0A00,#1A1A2E);
+  --og:rgba(255,107,53,.12);--og-glow:rgba(255,107,53,.35);
+  --r:18px;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+[data-theme="light"]{
+  --bg:#F7F3F0;--bg2:#FFFFFF;--bg3:#FFF3EE;--bg4:#F0EDE8;
+  --ink:#1A0800;--ink2:#4A2810;--mu:#9A7060;--bdr:rgba(0,0,0,.07);
+  --card-shadow:0 2px 12px rgba(0,0,0,.07);
+}
+[data-theme="dark"]{
+  --bg:#120800;--bg2:#1E1008;--bg3:#261410;--bg4:#2E1810;
+  --ink:#F5E8DF;--ink2:#C8A88A;--mu:#7A5840;--bdr:rgba(255,255,255,.08);
+  --card-shadow:0 2px 12px rgba(0,0,0,.4);
+}
 
-      /* 漸層 */
-      --grad-main:  linear-gradient(135deg, #FF6B35 0%, #FF3B3B 100%);
-      --grad-gold:  linear-gradient(135deg, #FFD060 0%, #FF9500 100%);
-      --grad-dark:  linear-gradient(160deg, #1C0A00 0%, #1A1A2E 100%);
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);min-height:100dvh;overflow-x:hidden;transition:background .3s,color .3s;}
 
-      /* 背景 */
-      --bg:         #F7F3F0;
-      --bg2:        #FFFFFF;
-      --bg3:        #FFF3EE;
+.wrap{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;padding-top:var(--safe-t);padding-bottom:calc(var(--safe-b) + 100px);max-width:480px;margin:0 auto;}
 
-      /* 文字 */
-      --ink:        #1A0800;
-      --ink2:       #4A2810;
-      --muted:      #9A7060;
+/* ══ INSTALL BANNER ══ */
+#install-banner{
+  display:none;position:fixed;bottom:calc(var(--safe-b) + 106px);left:50%;
+  transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;
+  background:var(--grad-dark);border:1px solid rgba(255,107,53,.4);
+  border-radius:16px;padding:14px 16px;z-index:200;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  animation:slideUp .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+#install-banner.show{display:flex;align-items:center;gap:12px;}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+.ib-text{flex:1;font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
+.ib-text strong{color:#fff;display:block;margin-bottom:2px;}
+.ib-install{padding:8px 14px;border:none;border-radius:10px;background:var(--grad-main);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0 2px;flex-shrink:0;}
 
-      /* 透明度 */
-      --orange-g:   rgba(255,107,53,0.12);
-      --orange-glow:rgba(255,107,53,0.35);
+/* ══ HEADER ══ */
+header{background:var(--grad-dark);padding:20px 20px 28px;position:relative;overflow:hidden;}
+header::after{content:'';position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,53,.25),transparent 70%);pointer-events:none;}
+header::before{content:'';position:absolute;left:-30px;bottom:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,32,.12),transparent 70%);pointer-events:none;}
 
-      --radius: 18px;
-      --safe-top: env(safe-area-inset-top,0px);
-      --safe-bot: env(safe-area-inset-bottom,0px);
-    }
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative;z-index:1;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:44px;height:44px;border-radius:14px;background:var(--grad-main);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px var(--og-glow);font-family:'Exo 2',sans-serif;font-weight:900;font-size:20px;color:#fff;}
+.logo-name{font-family:'Exo 2',sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-.3px;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;}
 
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+.header-actions{display:flex;align-items:center;gap:8px;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;backdrop-filter:blur(8px);}
+.icon-btn:active{transform:scale(.93);}
 
-    body{
-      font-family:'Noto Sans TC',sans-serif;
-      background:var(--bg);
-      color:var(--ink);
-      min-height:100dvh;
-      overflow-x:hidden;
-    }
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:99px;padding:7px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.55);backdrop-filter:blur(10px);}
+.pill.on{background:rgba(255,107,53,.25);border-color:var(--orange);color:#FFB07A;}
+.pdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);transition:.3s;}
+.pill.on .pdot{background:var(--gold-l);box-shadow:0 0 6px var(--gold-l);animation:blink 1.8s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-    .wrap{
-      position:relative;z-index:1;
-      min-height:100dvh;
-      display:flex;flex-direction:column;
-      padding-top:var(--safe-top);
-      padding-bottom:calc(var(--safe-bot) + 96px);
-      max-width:480px;margin:0 auto;
-    }
+/* Hero */
+.hero-inner{position:relative;z-index:1;}
+.hero-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,176,32,.2);border:1px solid rgba(255,176,32,.35);color:var(--gold-l);border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.hero-title{font-family:'Exo 2',sans-serif;font-size:26px;font-weight:900;color:#fff;line-height:1.25;margin-bottom:8px;letter-spacing:-.5px;}
+.hero-title em{font-style:normal;background:var(--grad-gold);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:20px;}
+.btn-track{width:100%;padding:16px;border:none;border-radius:var(--r);font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;letter-spacing:.5px;background:var(--grad-main);color:#fff;box-shadow:0 6px 24px var(--og-glow);}
+.btn-track:active{transform:scale(.97);}
+.btn-track.stop{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);box-shadow:none;}
 
-    /* ══ HEADER ══ */
-    header{
-      background:var(--grad-dark);
-      padding:20px 20px 28px;
-      position:relative;overflow:hidden;
-    }
-    header::after{
-      content:'';position:absolute;
-      right:-60px;top:-60px;
-      width:200px;height:200px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,107,53,.25) 0%, transparent 70%);
-      pointer-events:none;
-    }
-    header::before{
-      content:'';position:absolute;
-      left:-30px;bottom:-30px;
-      width:140px;height:140px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,176,32,.12) 0%, transparent 70%);
-      pointer-events:none;
-    }
+/* ══ DASHBOARD ══ */
+.dashboard{padding:16px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dash-card{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:16px;padding:14px;box-shadow:var(--card-shadow);transition:background .3s;}
+.dash-card.accent{background:var(--grad-main);border-color:transparent;}
+.dash-icon{font-size:20px;margin-bottom:6px;}
+.dash-val{font-family:'Exo 2',sans-serif;font-size:22px;font-weight:800;color:var(--ink);line-height:1;}
+.dash-card.accent .dash-val{color:#fff;}
+.dash-lbl{font-size:11px;color:var(--mu);font-weight:600;margin-top:3px;letter-spacing:.5px;}
+.dash-card.accent .dash-lbl{color:rgba(255,255,255,.65);}
+.dash-sub{font-size:10px;color:var(--orange);font-weight:700;margin-top:4px;}
+.dash-card.accent .dash-sub{color:rgba(255,255,255,.8);}
+.progress-thin{height:4px;border-radius:99px;background:var(--bg4);margin-top:8px;overflow:hidden;}
+.progress-thin-fill{height:100%;border-radius:99px;background:var(--grad-main);transition:width 1s ease;}
+.dash-card.accent .progress-thin{background:rgba(255,255,255,.2);}
+.dash-card.accent .progress-thin-fill{background:#fff;}
 
-    .header-top{
-      display:flex;align-items:center;justify-content:space-between;
-      margin-bottom:20px;position:relative;z-index:1;
-    }
+/* ══ TABS ══ */
+.tabs{display:flex;gap:6px;padding:16px 16px 0;background:var(--bg);transition:background .3s;}
+.tab{flex:1;padding:10px 4px;border:none;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;background:var(--bg2);color:var(--mu);border:1.5px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.tab.active{background:var(--grad-main);color:#fff;box-shadow:0 3px 12px var(--og-glow);}
 
-    .logo{display:flex;align-items:center;gap:10px;}
-    .logo-mark{
-      width:44px;height:44px;border-radius:14px;
-      background:var(--grad-main);
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 4px 16px var(--orange-glow);
-      font-family:'Exo 2',sans-serif;font-weight:900;
-      font-size:20px;color:#fff;letter-spacing:-1px;
-    }
-    .logo-text{line-height:1.15;}
-    .logo-name{
-      font-family:'Exo 2',sans-serif;font-weight:800;
-      font-size:18px;color:#fff;letter-spacing:-.3px;
-    }
-    .logo-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;}
+/* ══ PANELS ══ */
+.panel{display:none;animation:fadeUp .3s ease;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--mu);padding:18px 16px 10px;}
 
-    .pill{
-      display:flex;align-items:center;gap:6px;
-      background:rgba(255,255,255,.1);
-      border:1px solid rgba(255,255,255,.15);
-      border-radius:99px;padding:7px 14px;
-      font-size:12px;font-weight:600;color:rgba(255,255,255,.55);
-      backdrop-filter:blur(10px);
-    }
-    .pill.on{background:rgba(255,107,53,.25);border-color:var(--orange);color:#FFB07A;}
-    .pdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);transition:.3s;}
-    .pill.on .pdot{background:var(--gold);box-shadow:0 0 6px var(--gold);animation:blink 1.8s infinite;}
-    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+/* ══ MAP ══ */
+.map-wrap{margin:0 16px;border-radius:var(--r);overflow:hidden;height:180px;position:relative;box-shadow:var(--card-shadow);}
+#map-canvas{width:100%;height:100%;display:block;}
+.map-cover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(247,243,240,.92);backdrop-filter:blur(6px);}
+[data-theme="dark"] .map-cover{background:rgba(18,8,0,.88);}
+.map-cover p{font-size:13px;color:var(--mu);font-weight:500;}
+.map-cover.hidden{display:none;}
 
-    /* Hero 區域（在 header 內） */
-    .hero-inner{position:relative;z-index:1;}
-    .hero-tag{
-      display:inline-flex;align-items:center;gap:5px;
-      background:rgba(255,176,32,.2);border:1px solid rgba(255,176,32,.35);
-      color:var(--gold-light);border-radius:99px;
-      padding:4px 12px;font-size:11px;font-weight:700;
-      letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;
-    }
-    .hero-title{
-      font-family:'Exo 2',sans-serif;font-size:26px;font-weight:900;
-      color:#fff;line-height:1.25;margin-bottom:8px;letter-spacing:-.5px;
-    }
-    .hero-title em{
-      font-style:normal;
-      background:var(--grad-gold);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-    }
-    .hero-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:20px;}
+/* Search + filter */
+.venue-toolbar{display:flex;gap:8px;padding:10px 16px 0;}
+.venue-search{flex:1;padding:10px 14px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--bg2);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:13px;outline:none;transition:.2s;}
+.venue-search:focus{border-color:var(--orange);}
+.filter-btn{padding:10px 12px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--bg2);color:var(--mu);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;}
+.filter-btn.on{background:var(--og);border-color:var(--orange);color:var(--orange-d);}
+.filter-chips{display:flex;gap:6px;padding:8px 16px 0;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
+.filter-chips::-webkit-scrollbar{display:none;}
+.chip{padding:5px 12px;border-radius:99px;border:1.5px solid var(--bdr);background:var(--bg2);color:var(--mu);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0;}
+.chip.on{background:var(--og);border-color:var(--orange);color:var(--orange-d);}
 
-    .btn-track{
-      width:100%;padding:16px;border:none;border-radius:var(--radius);
-      font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;
-      cursor:pointer;transition:all .25s;letter-spacing:.5px;
-      background:var(--grad-main);color:#fff;
-      box-shadow:0 6px 24px var(--orange-glow);
-    }
-    .btn-track:active{transform:scale(.97);}
-    .btn-track.stop{
-      background:rgba(255,255,255,.1);
-      border:1.5px solid rgba(255,255,255,.25);
-      color:rgba(255,255,255,.7);box-shadow:none;
-    }
+/* Venue cards */
+.stores{padding:10px 16px 0;display:flex;flex-direction:column;gap:8px;}
+.store{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--card-shadow);transition:.2s;cursor:pointer;}
+.store.near{border-color:var(--orange);background:linear-gradient(135deg,rgba(255,107,53,.06),var(--bg2));}
+.store.fav .store-fav-btn{color:var(--gold);}
+.store-ico{width:46px;height:46px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.store.near .store-ico{background:rgba(255,107,53,.1);}
+.store-info{flex:1;min-width:0;}
+.store-name{font-weight:700;font-size:14px;margin-bottom:2px;color:var(--ink);}
+.store-addr{font-size:11px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.store-hours{font-size:10px;font-weight:600;margin-top:3px;}
+.store-hours.open{color:#22C55E;} .store-hours.closing{color:var(--gold);} .store-hours.closed{color:var(--red);}
+.near-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(255,107,53,.12);color:var(--orange-d);font-size:10px;font-weight:700;border-radius:6px;padding:2px 7px;margin-top:4px;}
+.store-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.store-dist{font-size:12px;font-weight:700;color:var(--orange);}
+.store-dist.far{color:var(--mu);}
+.store-fav-btn{font-size:16px;background:none;border:none;cursor:pointer;padding:0;color:var(--mu);transition:.2s;line-height:1;}
+.store-fav-btn:active{transform:scale(1.3);}
+.no-results{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px;}
 
-    /* ══ TABS ══ */
-    .tabs{
-      display:flex;gap:6px;padding:16px 16px 0;
-      background:var(--bg);
-    }
-    .tab{
-      flex:1;padding:10px 4px;border:none;border-radius:12px;
-      font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;
-      cursor:pointer;transition:all .2s;
-      background:var(--bg2);color:var(--muted);
-      border:1.5px solid transparent;
-      box-shadow:0 1px 4px rgba(0,0,0,.06);
-    }
-    .tab.active{
-      background:var(--grad-main);color:#fff;
-      box-shadow:0 3px 12px var(--orange-glow);border-color:transparent;
-    }
+/* Open-hours countdown */
+.hours-countdown{margin:0 16px;background:var(--bg2);border:1.5px solid var(--bdr);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:var(--card-shadow);}
+.hc-icon{font-size:22px;}
+.hc-text{flex:1;font-size:13px;color:var(--ink2);line-height:1.5;}
+.hc-text strong{color:var(--ink);}
 
-    /* ══ PANELS ══ */
-    .panel{display:none;animation:fadeUp .3s ease;}
-    .panel.active{display:block;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+/* ══ U-WALK PANEL ══ */
+.walk-card{margin:0 16px;background:var(--grad-dark);border-radius:24px;padding:24px;position:relative;overflow:hidden;}
+.walk-card::after{content:'🚶';position:absolute;right:12px;bottom:8px;font-size:90px;opacity:.08;pointer-events:none;}
+.walk-card-title{font-family:'Exo 2',sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:2px;}
+.walk-card-sub{font-size:12px;color:rgba(255,255,255,.4);line-height:1.6;margin-bottom:18px;}
+.step-ring-wrap{display:flex;justify-content:center;margin-bottom:18px;}
+.step-ring{position:relative;width:140px;height:140px;}
+.step-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:10;}
+.ring-prog{fill:none;stroke:url(#ringGrad);stroke-width:10;stroke-linecap:round;stroke-dasharray:358;stroke-dashoffset:358;transition:stroke-dashoffset 1s ease;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.step-num{font-family:'Exo 2',sans-serif;font-size:26px;font-weight:900;color:#fff;line-height:1;}
+.step-label{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.walk-goals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.goal{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;}
+.goal-steps{font-family:'Exo 2',sans-serif;font-size:16px;font-weight:800;color:#fff;}
+.goal-reward{font-size:11px;font-weight:700;color:var(--gold-l);}
+.goal-label{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
+.goal-bar{height:4px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:8px;overflow:hidden;}
+.goal-fill{height:100%;border-radius:99px;background:var(--grad-gold);transition:width 1s ease;}
+.goal.done{border-color:rgba(255,208,96,.4);background:rgba(255,208,96,.08);}
+.goal.done .goal-steps::after{content:' ✓';color:var(--gold-l);}
 
-    .sec-label{
-      font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
-      color:var(--muted);padding:18px 16px 10px;
-    }
+.divider{height:1px;background:rgba(255,255,255,.08);margin:16px 0;}
 
-    /* ══ MAP ══ */
-    .map-wrap{
-      margin:0 16px;border-radius:var(--radius);overflow:hidden;
-      height:178px;position:relative;
-      box-shadow:0 4px 20px rgba(0,0,0,.1);
-    }
-    #map-canvas{width:100%;height:100%;display:block;}
-    .map-cover{
-      position:absolute;inset:0;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:8px;
-      background:rgba(247,243,240,.9);backdrop-filter:blur(6px);
-    }
-    .map-cover p{font-size:13px;color:var(--muted);font-weight:500;}
-    .map-cover.hidden{display:none;}
+/* Pedometer */
+.pedo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.pedo-label{font-size:13px;color:rgba(255,255,255,.6);font-weight:600;}
+.src-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:99px;padding:4px 10px;border:1px solid;}
+.src-badge.api{color:#4ADE80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);}
+.src-badge.manual{color:var(--gold-l);border-color:rgba(255,208,96,.4);background:rgba(255,208,96,.1);}
+.src-badge.none{color:rgba(255,255,255,.3);border-color:rgba(255,255,255,.12);background:transparent;}
+.pedo-toggle{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;background:rgba(74,222,128,.15);color:#4ADE80;border:1px solid rgba(74,222,128,.3);cursor:pointer;transition:.2s;margin-bottom:10px;}
+.pedo-toggle.off{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.12);}
+.pedo-toggle:active{transform:scale(.97);}
+.manual-row{display:flex;gap:8px;margin-bottom:10px;}
+.manual-inp{flex:1;padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:600;outline:none;transition:.2s;}
+.manual-inp::placeholder{color:rgba(255,255,255,.25);}
+.manual-inp:focus{border-color:rgba(255,208,96,.5);background:rgba(255,208,96,.07);}
+.add-btn{padding:11px 18px;border:none;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;background:var(--grad-gold);color:var(--ink);cursor:pointer;transition:.2s;flex-shrink:0;}
+.add-btn:active{transform:scale(.97);}
+.quick-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;}
+.qbtn{padding:9px 0;border:none;border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:.2s;}
+.qbtn:active{transform:scale(.96);background:rgba(255,208,96,.15);}
+.walk-note{margin-top:14px;font-size:11px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;line-height:1.7;}
+.walk-note strong{color:var(--gold-l);}
+.btn-reset{margin-top:10px;width:100%;padding:11px;border:none;border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:600;background:transparent;color:rgba(255,107,53,.6);border:1px solid rgba(255,107,53,.2);cursor:pointer;transition:.2s;}
+.btn-reset:active{transform:scale(.97);}
 
-    /* ══ VENUE CARDS ══ */
-    .stores{padding:0 16px;display:flex;flex-direction:column;gap:8px;}
-    .store{
-      background:var(--bg2);border:1.5px solid rgba(0,0,0,.06);
-      border-radius:var(--radius);padding:14px 16px;
-      display:flex;align-items:center;gap:12px;
-      box-shadow:0 2px 8px rgba(0,0,0,.04);transition:.2s;
-    }
-    .store.near{
-      border-color:var(--orange);
-      background:linear-gradient(135deg,rgba(255,107,53,.06),#fff);
-    }
-    .store-ico{
-      width:46px;height:46px;border-radius:12px;
-      background:var(--bg3);display:flex;
-      align-items:center;justify-content:center;
-      font-size:22px;flex-shrink:0;
-    }
-    .store.near .store-ico{background:rgba(255,107,53,.1);}
-    .store-info{flex:1;min-width:0;}
-    .store-name{font-weight:700;font-size:14px;margin-bottom:2px;}
-    .store-addr{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .near-badge{
-      display:inline-flex;align-items:center;gap:3px;
-      background:rgba(255,107,53,.12);color:var(--orange-d);
-      font-size:10px;font-weight:700;border-radius:6px;
-      padding:2px 7px;margin-top:4px;
-    }
-    .store-dist{font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;}
-    .store-dist.far{color:var(--muted);}
+/* ══ GUIDE PANEL ══ */
+.guide-wrap{padding:0 16px;}
+.guide-section{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:20px;padding:20px;margin-bottom:12px;box-shadow:var(--card-shadow);transition:background .3s;}
+.guide-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.guide-ico{width:40px;height:40px;border-radius:12px;background:var(--og);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.guide-title{font-family:'Exo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);}
+.guide-subtitle{font-size:11px;color:var(--mu);margin-top:1px;}
+.guide-steps{display:flex;flex-direction:column;gap:10px;}
+.g-step{display:flex;align-items:flex-start;gap:10px;}
+.g-num{width:24px;height:24px;border-radius:50%;background:var(--grad-main);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.g-text{font-size:13px;color:var(--ink2);line-height:1.6;}
+.g-text strong{color:var(--ink);}
+.guide-note{font-size:12px;color:var(--mu);background:var(--bg3);border-radius:10px;padding:10px 12px;line-height:1.7;margin-top:12px;}
+.guide-note a{color:var(--orange);font-weight:700;text-decoration:none;}
+.guide-link{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--og);border:1.5px solid rgba(255,107,53,.25);border-radius:12px;margin-top:12px;text-decoration:none;transition:.2s;}
+.guide-link:active{background:rgba(255,107,53,.2);}
+.guide-link span{flex:1;font-size:13px;font-weight:700;color:var(--orange-d);}
+.guide-link .arrow{color:var(--orange);font-size:16px;}
+.reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.reward-item{background:var(--bg3);border-radius:12px;padding:12px;text-align:center;}
+.reward-steps{font-family:'Exo 2',sans-serif;font-size:15px;font-weight:800;color:var(--orange);}
+.reward-coin{font-size:12px;font-weight:700;color:var(--gold);margin-top:2px;}
+.reward-lbl{font-size:10px;color:var(--mu);margin-top:2px;}
 
-    /* ══ U-WALK PANEL ══ */
-    .walk-card{
-      margin:0 16px;
-      background:var(--grad-dark);
-      border-radius:24px;padding:24px;
-      position:relative;overflow:hidden;
-    }
-    .walk-card::after{
-      content:'🚶';position:absolute;right:12px;bottom:8px;
-      font-size:90px;opacity:.1;pointer-events:none;
-    }
-    .walk-card-title{
-      font-family:'Exo 2',sans-serif;font-size:18px;font-weight:800;
-      color:#fff;margin-bottom:4px;
-    }
-    .walk-card-sub{font-size:12px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:20px;}
+/* ══ LOG PANEL ══ */
+.log-toolbar{display:flex;gap:8px;padding:10px 16px 0;}
+.log-filter{flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg2);color:var(--ink);font-size:12px;font-weight:700;cursor:pointer;transition:.2s;}
+.log-filter.on{background:var(--og);border-color:var(--orange);color:var(--orange-d);}
+.logs{padding:10px 16px 0;display:flex;flex-direction:column;gap:8px;}
+.log{background:var(--bg2);border-left:3px solid var(--orange);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;box-shadow:var(--card-shadow);}
+.log.walk-log{border-left-color:var(--gold);}
+.log-body{font-size:13px;color:var(--ink2);line-height:1.5;}
+.log-body strong{color:var(--ink);font-weight:700;}
+.log-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-top:3px;}
+.log-tag.venue{background:rgba(255,107,53,.1);color:var(--orange-d);}
+.log-tag.walk{background:rgba(255,176,32,.1);color:#B06000;}
+.log-time{font-size:11px;color:var(--mu);flex-shrink:0;margin-left:8px;}
+.log-empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px;line-height:1.8;}
 
-    .step-ring-wrap{display:flex;justify-content:center;margin-bottom:20px;}
-    .step-ring{position:relative;width:140px;height:140px;}
-    .step-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
-    .ring-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:10;}
-    .ring-prog{
-      fill:none;stroke:url(#ringGrad);stroke-width:10;
-      stroke-linecap:round;stroke-dasharray:358;
-      stroke-dashoffset:358;transition:stroke-dashoffset 1s ease;
-    }
-    .ring-center{
-      position:absolute;inset:0;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
-    }
-    .step-num{
-      font-family:'Exo 2',sans-serif;font-size:26px;font-weight:900;
-      color:#fff;line-height:1;
-    }
-    .step-label{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+/* Timeline calendar dots */
+.timeline-month{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:16px;padding:16px;margin:0 16px;box-shadow:var(--card-shadow);}
+.tl-title{font-size:12px;font-weight:700;color:var(--mu);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.tl-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.tl-day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--mu);background:var(--bg4);}
+.tl-day.has-venue{background:rgba(255,107,53,.15);color:var(--orange-d);}
+.tl-day.has-walk{background:rgba(255,176,32,.15);color:#B06000;}
+.tl-day.has-both{background:linear-gradient(135deg,rgba(255,107,53,.2),rgba(255,176,32,.2));color:var(--orange-d);}
+.tl-day.today{outline:2px solid var(--orange);outline-offset:1px;}
+.tl-legend{display:flex;gap:12px;margin-top:10px;}
+.tl-dot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;}
 
-    .walk-goals{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .goal{
-      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
-      border-radius:14px;padding:14px;
-    }
-    .goal-steps{font-family:'Exo 2',sans-serif;font-size:16px;font-weight:800;color:#fff;}
-    .goal-reward{font-size:11px;font-weight:700;color:var(--gold-light);}
-    .goal-label{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
-    .goal-bar{height:4px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:8px;overflow:hidden;}
-    .goal-fill{height:100%;border-radius:99px;background:var(--grad-gold);transition:width 1s ease;}
+/* ══ APP BAR ══ */
+.appbar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + var(--safe-b));background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:100;max-width:480px;margin:0 auto;transition:background .3s;}
+.appbar-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.app-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 10px;border-radius:14px;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:.2s;border:none;}
+.app-btn:active{transform:scale(.97);}
+.app-ios{background:#000;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);}
+.app-android{background:var(--grad-main);color:#fff;box-shadow:0 4px 16px var(--og-glow);}
 
-    .walk-note{
-      margin-top:14px;font-size:11px;color:rgba(255,255,255,.4);
-      background:rgba(255,255,255,.05);border-radius:10px;
-      padding:10px 12px;line-height:1.7;
-    }
-    .walk-note strong{color:var(--gold-light);}
+/* ══ LANG MODAL ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-sheet{width:100%;max-width:480px;background:var(--bg2);border-radius:24px 24px 0 0;padding:20px 20px calc(20px + var(--safe-b));transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+.modal-overlay.show .modal-sheet{transform:translateY(0);}
+.modal-title{font-family:'Exo 2',sans-serif;font-size:18px;font-weight:800;color:var(--ink);margin-bottom:16px;text-align:center;}
+.lang-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.lang-opt{padding:16px;border-radius:14px;border:1.5px solid var(--bdr);background:var(--bg);text-align:center;cursor:pointer;transition:.2s;font-weight:700;font-size:14px;color:var(--ink);}
+.lang-opt.active{border-color:var(--orange);background:var(--og);color:var(--orange-d);}
 
-    /* ── Pedometer controls */
-    .pedo-row{
-      display:flex;align-items:center;justify-content:space-between;
-      margin-bottom:16px;
-    }
-    .pedo-label{font-size:13px;color:rgba(255,255,255,.6);font-weight:600;}
-    .pedo-source{
-      display:inline-flex;align-items:center;gap:5px;
-      font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-      border-radius:99px;padding:4px 10px;border:1px solid;
-    }
-    .pedo-source.api{color:#4ADE80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);}
-    .pedo-source.manual{color:var(--gold-light);border-color:rgba(255,208,96,.4);background:rgba(255,208,96,.1);}
-    .pedo-source.none{color:rgba(255,255,255,.3);border-color:rgba(255,255,255,.15);background:transparent;}
+/* ══ TOAST ══ */
+#toast{position:fixed;top:calc(var(--safe-t) + 12px);left:50%;transform:translateX(-50%) translateY(-120px);background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:8px;z-index:999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.3);font-size:13px;font-weight:600;}
+#toast.show{transform:translateX(-50%) translateY(0);}
 
-    .pedo-toggle{
-      width:100%;padding:13px;border:none;border-radius:12px;
-      font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;
-      background:rgba(74,222,128,.15);color:#4ADE80;
-      border:1px solid rgba(74,222,128,.3);
-      cursor:pointer;transition:.2s;margin-bottom:10px;
-    }
-    .pedo-toggle:active{transform:scale(.97);}
-    .pedo-toggle.off{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.12);}
-
-    .manual-input-row{
-      display:flex;gap:8px;margin-bottom:10px;
-    }
-    .manual-input{
-      flex:1;padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
-      background:rgba(255,255,255,.07);color:#fff;
-      font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:600;
-      outline:none;transition:.2s;
-    }
-    .manual-input::placeholder{color:rgba(255,255,255,.25);}
-    .manual-input:focus{border-color:rgba(255,208,96,.5);background:rgba(255,208,96,.07);}
-    .manual-add-btn{
-      padding:11px 18px;border:none;border-radius:12px;
-      font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;
-      background:var(--grad-gold);color:var(--ink);
-      cursor:pointer;transition:.2s;flex-shrink:0;
-    }
-    .manual-add-btn:active{transform:scale(.97);}
-
-    .quick-btns{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;
-    }
-    .quick-btn{
-      padding:9px 0;border:none;border-radius:10px;
-      font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;
-      background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);
-      border:1px solid rgba(255,255,255,.12);
-      cursor:pointer;transition:.2s;
-    }
-    .quick-btn:active{transform:scale(.96);background:rgba(255,208,96,.15);}
-
-    .btn-reset{
-      margin-top:6px;width:100%;padding:11px;border:none;border-radius:10px;
-      font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:600;
-      background:transparent;color:rgba(255,107,53,.6);
-      border:1px solid rgba(255,107,53,.2);
-      cursor:pointer;transition:.2s;
-    }
-    .btn-reset:active{transform:scale(.97);}
-
-    /* ══ LOG ══ */
-    .logs{padding:0 16px;display:flex;flex-direction:column;gap:8px;}
-    .log{
-      background:var(--bg2);
-      border-left:3px solid var(--orange);
-      border-radius:0 var(--radius) var(--radius) 0;
-      padding:12px 14px;
-      display:flex;justify-content:space-between;align-items:flex-start;
-      box-shadow:0 2px 6px rgba(0,0,0,.04);
-    }
-    .log-body{font-size:13px;color:var(--ink2);}
-    .log-body strong{color:var(--ink);font-weight:700;}
-    .log-time{font-size:11px;color:var(--muted);flex-shrink:0;margin-left:8px;}
-    .log-empty{text-align:center;padding:36px 16px;color:var(--muted);font-size:14px;line-height:1.8;}
-
-    /* ══ APP BAR ══ */
-    .appbar{
-      position:fixed;bottom:0;left:0;right:0;
-      padding:10px 16px calc(10px + var(--safe-bot));
-      background:linear-gradient(to top,var(--bg) 70%,transparent);
-      z-index:100;max-width:480px;margin:0 auto;
-    }
-    .appbar-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-    .app-btn{
-      display:flex;align-items:center;justify-content:center;gap:7px;
-      padding:14px 10px;border-radius:14px;
-      font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;
-      cursor:pointer;text-decoration:none;transition:.2s;border:none;
-    }
-    .app-btn:active{transform:scale(.97);}
-    .app-ios{
-      background:#000;color:#fff;
-      box-shadow:0 4px 16px rgba(0,0,0,.2);
-    }
-    .app-android{
-      background:var(--grad-main);color:#fff;
-      box-shadow:0 4px 16px var(--orange-glow);
-    }
-
-    /* ══ TOAST ══ */
-    #toast{
-      position:fixed;top:calc(var(--safe-top) + 12px);left:50%;
-      transform:translateX(-50%) translateY(-120px);
-      background:var(--ink);color:#fff;border-radius:14px;
-      padding:12px 18px;display:flex;align-items:center;gap:8px;
-      z-index:999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);
-      white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.3);
-      font-size:13px;font-weight:600;
-    }
-    #toast.show{transform:translateX(-50%) translateY(0);}
-  </style>
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,107,53,.3);border-radius:99px;}
+</style>
 </head>
 <body>
 
+<!-- Toast -->
 <div id="toast"><span id="t-icon">✅</span><span id="t-msg">通知已啟用</span></div>
+
+<!-- Install Banner -->
+<div id="install-banner">
+  <span style="font-size:24px">📲</span>
+  <div class="ib-text"><strong data-i18n="install_title">加入主畫面</strong><span data-i18n="install_desc">像 App 一樣使用，支援背景通知</span></div>
+  <button class="ib-install" onclick="installPWA()" data-i18n="install_btn">安裝</button>
+  <button class="ib-close" onclick="dismissInstall()">✕</button>
+</div>
+
+<!-- Lang Modal -->
+<div class="modal-overlay" id="lang-modal" onclick="closeLangModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-title">🌐 語言 / Language</div>
+    <div class="lang-options">
+      <div class="lang-opt active" onclick="setLang('zh')" id="lang-zh">繁體中文</div>
+      <div class="lang-opt" onclick="setLang('en')" id="lang-en">English</div>
+    </div>
+  </div>
+</div>
 
 <div class="wrap">
 
-  <!-- ══ HEADER + HERO ══ -->
-  <header>
-    <div class="header-top">
-      <div class="logo">
-        <div class="logo-mark">U</div>
-        <div class="logo-text">
-          <div class="logo-name">U-Sport</div>
-          <div class="logo-sub">臺北樂運動 · 2026</div>
-        </div>
-      </div>
-      <div class="pill" id="pill">
-        <div class="pdot"></div>
-        <span id="pill-label">未追蹤</span>
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-mark">U</div>
+      <div>
+        <div class="logo-name">U-Sport</div>
+        <div class="logo-sub" data-i18n="logo_sub">臺北樂運動 · 2026</div>
       </div>
     </div>
-
-    <div class="hero-inner">
-      <div class="hero-tag">📍 智慧定位提醒</div>
-      <h1 class="hero-title">靠近場館<br/><em>自動通知集點</em></h1>
-      <p class="hero-desc">涵蓋台北 240+ 合作場館，含運動中心、World Gym、健身工廠，500m 內即提醒</p>
-      <button class="btn-track" id="btn-track" onclick="toggleTracking()">🏃 開始追蹤定位</button>
-    </div>
-  </header>
-
-  <!-- ══ TABS ══ -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('venues',this)">🏟️ 場館雷達</button>
-    <button class="tab" onclick="switchTab('walk',this)">🚶 萬步走</button>
-    <button class="tab" onclick="switchTab('log',this)">🔔 通知紀錄</button>
-  </div>
-
-  <!-- ══ PANEL: VENUES ══ -->
-  <div class="panel active" id="panel-venues">
-    <div class="sec-label">📡 附近場館地圖</div>
-    <div class="map-wrap">
-      <canvas id="map-canvas"></canvas>
-      <div class="map-cover" id="map-cover">
-        <span style="font-size:36px">🗺️</span>
-        <p>開啟追蹤後顯示附近場館</p>
-      </div>
-    </div>
-
-    <div class="sec-label">🏪 合作場館列表</div>
-    <div class="stores" id="stores"></div>
-    <div style="height:8px"></div>
-  </div>
-
-  <!-- ══ PANEL: U-WALK ══ -->
-  <div class="panel" id="panel-walk">
-    <div style="padding:14px 0 0"></div>
-    <div class="walk-card">
-      <!-- SVG 漸層定義 -->
-      <svg width="0" height="0" style="position:absolute">
-        <defs>
-          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FFD060"/>
-            <stop offset="100%" stop-color="#FF6B35"/>
-          </linearGradient>
-        </defs>
-      </svg>
-
-      <div class="walk-card-title">U-Walk 健康萬步走</div>
-      <div class="walk-card-sub">115年 1月1日 ～ 6月30日 · 每月步行達標得 U 幣</div>
-
-      <div class="step-ring-wrap">
-        <div class="step-ring">
-          <svg viewBox="0 0 120 120">
-            <circle class="ring-bg" cx="60" cy="60" r="57"/>
-            <circle class="ring-prog" id="ring-prog" cx="60" cy="60" r="57"/>
-          </svg>
-          <div class="ring-center">
-            <div class="step-num" id="step-num">0</div>
-            <div class="step-label">本月累積步數</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="walk-goals">
-        <div class="goal">
-          <div class="goal-steps">20 萬步</div>
-          <div class="goal-reward">＋ 30 U 幣</div>
-          <div class="goal-label">每月目標一</div>
-          <div class="goal-bar"><div class="goal-fill" id="bar1" style="width:0%"></div></div>
-        </div>
-        <div class="goal">
-          <div class="goal-steps">30 萬步</div>
-          <div class="goal-reward">＋ 120 U 幣</div>
-          <div class="goal-label">每月目標二</div>
-          <div class="goal-bar"><div class="goal-fill" id="bar2" style="width:0%"></div></div>
-        </div>
-      </div>
-
-      <!-- 分隔 -->
-      <div style="height:1px;background:rgba(255,255,255,.08);margin:16px 0"></div>
-
-      <!-- Pedometer 狀態列 -->
-      <div class="pedo-row">
-        <span class="pedo-label">📟 計步器 API</span>
-        <span class="pedo-source none" id="pedo-source">未連接</span>
-      </div>
-
-      <!-- 啟用/停用計步 API -->
-      <button class="pedo-toggle off" id="pedo-toggle-btn" onclick="togglePedometer()">
-        🦶 啟用裝置計步 API
-      </button>
-
-      <!-- 手動輸入 -->
-      <div class="manual-input-row">
-        <input class="manual-input" id="manual-input" type="number" min="0" max="999999"
-               placeholder="手動輸入步數…" inputmode="numeric"/>
-        <button class="manual-add-btn" onclick="addManualSteps()">＋ 加入</button>
-      </div>
-
-      <!-- 快速按鈕 -->
-      <div class="quick-btns">
-        <button class="quick-btn" onclick="quickAdd(1000)">＋ 1K</button>
-        <button class="quick-btn" onclick="quickAdd(5000)">＋ 5K</button>
-        <button class="quick-btn" onclick="quickAdd(10000)">＋ 10K</button>
-      </div>
-
-      <div class="walk-note">
-        🏆 <strong>20萬步→30U</strong>、<strong>30萬步→120U</strong>，以自然月計算。<br/>
-        📱 Pedometer API 在支援的裝置上自動讀取；不支援時請手動輸入或用快速按鈕。
-      </div>
-
-      <button class="btn-reset" onclick="resetSteps()">🗑 重設本月步數</button>
-    </div>
-    <div style="height:8px"></div>
-  </div>
-
-  <!-- ══ PANEL: LOG ══ -->
-  <div class="panel" id="panel-log">
-    <div class="sec-label">🔔 通知紀錄</div>
-    <div class="logs" id="logs">
-      <div class="log-empty">還沒有紀錄<br/>開始追蹤並靠近場館後會出現在這裡</div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="toggleTheme()" id="theme-btn" title="切換主題">🌙</button>
+      <button class="icon-btn" onclick="openLangModal()" title="Language">🌐</button>
+      <div class="pill" id="pill"><div class="pdot"></div><span id="pill-label" data-i18n="status_off">未追蹤</span></div>
     </div>
   </div>
+  <div class="hero-inner">
+    <div class="hero-tag">📍 <span data-i18n="hero_tag">智慧定位提醒</span></div>
+    <h1 class="hero-title" data-i18n="hero_title">靠近場館<br/><em>自動通知集點</em></h1>
+    <p class="hero-desc" data-i18n="hero_desc">涵蓋台北 240+ 合作運動場館，500m 內即提醒，別再忘記集 U 幣！</p>
+    <button class="btn-track" id="btn-track" onclick="toggleTracking()" data-i18n="btn_start">🏃 開始追蹤定位</button>
+  </div>
+</header>
 
+<!-- ══ DASHBOARD ══ -->
+<div class="dashboard">
+  <div class="dash-card accent">
+    <div class="dash-icon">🪙</div>
+    <div class="dash-val" id="dash-coins">0</div>
+    <div class="dash-lbl" data-i18n="dash_coins">本月累積 U 幣</div>
+    <div class="dash-sub" id="dash-coins-sub">入場 +5U / 翻倍後 +10U</div>
+    <div class="progress-thin"><div class="progress-thin-fill" id="dash-coin-bar" style="width:0%"></div></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-icon">📅</div>
+    <div class="dash-val" id="dash-visits">0</div>
+    <div class="dash-lbl" data-i18n="dash_visits">本月運動次數</div>
+    <div class="dash-sub" id="dash-visits-sub">第 37 次起翻倍！</div>
+    <div class="progress-thin"><div class="progress-thin-fill" id="dash-visit-bar" style="width:0%"></div></div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-icon">🚶</div>
+    <div class="dash-val" id="dash-steps-k">0K</div>
+    <div class="dash-lbl" data-i18n="dash_steps">本月步數</div>
+    <div class="dash-sub" id="dash-step-goal">目標：20萬步</div>
+  </div>
+  <div class="dash-card">
+    <div class="dash-icon">⏰</div>
+    <div class="dash-val" id="dash-countdown">--:--</div>
+    <div class="dash-lbl" data-i18n="dash_nearest">最近場館倒數</div>
+    <div class="dash-sub" id="dash-nearest-name">開始追蹤後顯示</div>
+  </div>
 </div>
+
+<!-- ══ TABS ══ -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('venues',this)" data-i18n="tab_venues">🏟️ 場館雷達</button>
+  <button class="tab" onclick="switchTab('walk',this)" data-i18n="tab_walk">🚶 萬步走</button>
+  <button class="tab" onclick="switchTab('guide',this)" data-i18n="tab_guide">📖 集點指南</button>
+  <button class="tab" onclick="switchTab('log',this)" data-i18n="tab_log">🔔 紀錄</button>
+</div>
+
+<!-- ══ PANEL: VENUES ══ -->
+<div class="panel active" id="panel-venues">
+  <div class="sec-label" data-i18n="map_label">📡 附近場館地圖</div>
+  <div class="map-wrap">
+    <canvas id="map-canvas"></canvas>
+    <div class="map-cover" id="map-cover">
+      <span style="font-size:36px">🗺️</span>
+      <p data-i18n="map_hint">開啟追蹤後顯示附近場館</p>
+    </div>
+  </div>
+
+  <!-- 開放時間倒數 -->
+  <div style="height:10px"></div>
+  <div class="hours-countdown" id="hours-bar" style="display:none">
+    <span class="hc-icon">⏳</span>
+    <div class="hc-text" id="hours-text">計算中…</div>
+  </div>
+
+  <!-- 搜尋 + 篩選 -->
+  <div class="venue-toolbar">
+    <input class="venue-search" id="venue-search" placeholder="搜尋場館名稱…" oninput="filterVenues()" data-i18n-ph="search_ph"/>
+    <button class="filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()" data-i18n="fav_only">⭐ 收藏</button>
+  </div>
+  <div class="filter-chips" id="type-chips"></div>
+
+  <div class="sec-label" data-i18n="venues_label">🏪 合作場館列表</div>
+  <div class="stores" id="stores"></div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══ PANEL: U-WALK ══ -->
+<div class="panel" id="panel-walk">
+  <div style="padding:14px 0 0"></div>
+  <div class="walk-card">
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFD060"/><stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="walk-card-title" data-i18n="walk_title">U-Walk 健康萬步走</div>
+    <div class="walk-card-sub" data-i18n="walk_period">115年 1月1日 ～ 6月30日 · 每月步行達標得 U 幣</div>
+    <div class="step-ring-wrap">
+      <div class="step-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="57"/>
+          <circle class="ring-prog" id="ring-prog" cx="60" cy="60" r="57"/>
+        </svg>
+        <div class="ring-center">
+          <div class="step-num" id="step-num">0</div>
+          <div class="step-label" data-i18n="step_label">本月累積步數</div>
+        </div>
+      </div>
+    </div>
+    <div class="walk-goals">
+      <div class="goal" id="goal1">
+        <div class="goal-steps">20 萬步</div>
+        <div class="goal-reward">＋ 30 U 幣</div>
+        <div class="goal-label" data-i18n="goal1_lbl">每月目標一</div>
+        <div class="goal-bar"><div class="goal-fill" id="bar1" style="width:0%"></div></div>
+      </div>
+      <div class="goal" id="goal2">
+        <div class="goal-steps">30 萬步</div>
+        <div class="goal-reward">＋ 50 U 幣</div>
+        <div class="goal-label" data-i18n="goal2_lbl">每月目標二</div>
+        <div class="goal-bar"><div class="goal-fill" id="bar2" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="pedo-row">
+      <span class="pedo-label" data-i18n="pedo_label">📟 計步器 API</span>
+      <span class="src-badge none" id="pedo-source" data-i18n="src_none">未連接</span>
+    </div>
+    <button class="pedo-toggle off" id="pedo-btn" onclick="togglePedometer()" data-i18n="pedo_start">🦶 啟用裝置計步 API</button>
+    <div class="manual-row">
+      <input class="manual-inp" id="manual-input" type="number" min="0" max="999999" placeholder="手動輸入步數…" inputmode="numeric" data-i18n-ph="manual_ph"/>
+      <button class="add-btn" onclick="addManualSteps()" data-i18n="add_btn">＋ 加入</button>
+    </div>
+    <div class="quick-btns">
+      <button class="qbtn" onclick="quickAdd(1000)">＋ 1K</button>
+      <button class="qbtn" onclick="quickAdd(5000)">＋ 5K</button>
+      <button class="qbtn" onclick="quickAdd(10000)">＋ 10K</button>
+    </div>
+    <div class="walk-note" data-i18n="walk_note">
+      🏆 <strong>20萬步→30U</strong>、<strong>30萬步再+50U</strong>，每月最高 <strong>80U幣</strong>，以自然月計算。<br/>
+      📱 Pedometer API 在支援的裝置上自動讀取；不支援時請手動輸入。
+    </div>
+    <button class="btn-reset" onclick="resetSteps()" data-i18n="reset_btn">🗑 重設本月步數</button>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══ PANEL: GUIDE ══ -->
+<div class="panel" id="panel-guide">
+  <div class="sec-label" data-i18n="guide_label">📖 集點指南</div>
+  <div class="guide-wrap">
+
+    <!-- 入館集點 -->
+    <div class="guide-section">
+      <div class="guide-header">
+        <div class="guide-ico">▶️</div>
+        <div>
+          <div class="guide-title" data-i18n="g1_title">入館運動集點</div>
+          <div class="guide-subtitle" data-i18n="g1_sub">3 步驟簡單集 U 幣</div>
+        </div>
+      </div>
+      <div class="guide-steps">
+        <div class="g-step"><div class="g-num">1</div><div class="g-text" data-i18n="g1_s1">下載 <strong>U-Sport App</strong> 並完成會員註冊</div></div>
+        <div class="g-step"><div class="g-num">2</div><div class="g-text" data-i18n="g1_s2">前往<strong>合作場館</strong>運動（可在 App 左下角「運動地圖」查詢附近場館）</div></div>
+        <div class="g-step"><div class="g-num">3</div><div class="g-text" data-i18n="g1_s3">運動前/後請場館人員協助<strong>掃描會員 QR Code</strong> → 成功累積 <strong>5 U 幣</strong>！</div></div>
+      </div>
+      <div class="guide-note" data-i18n="g1_note">💡 入場滿 36 次後，從第 37 次起每次集點翻倍為 <strong>10 U 幣</strong>！</div>
+    </div>
+
+    <!-- 任務集點 -->
+    <div class="guide-section">
+      <div class="guide-header">
+        <div class="guide-ico">🎯</div>
+        <div>
+          <div class="guide-title" data-i18n="g2_title">任務集點</div>
+          <div class="guide-subtitle" data-i18n="g2_sub">限時活動、節慶任務</div>
+        </div>
+      </div>
+      <div class="g-text" style="color:var(--ink2);font-size:13px;line-height:1.7" data-i18n="g2_body">
+        不定期推出限時任務等互動活動，如跨局處專案、節慶活動等，完成任務即可集 U 幣！請隨時留意 App 內通知，別錯過加碼機會。
+      </div>
+      <a class="guide-link" href="https://usport.gov.taipei/planDescription" target="_blank" rel="noopener">
+        <span data-i18n="g2_link">查看完整計畫說明</span><span class="arrow">→</span>
+      </a>
+    </div>
+
+    <!-- U-Walk -->
+    <div class="guide-section">
+      <div class="guide-header">
+        <div class="guide-ico">🚶</div>
+        <div>
+          <div class="guide-title" data-i18n="g3_title">U-Walk 健康萬步走</div>
+          <div class="guide-subtitle" data-i18n="g3_sub">115年 1月1日 ～ 6月30日</div>
+        </div>
+      </div>
+      <div class="g-text" style="color:var(--ink2);font-size:13px;line-height:1.7;margin-bottom:12px" data-i18n="g3_body">
+        同意與手機內建健康數據串接後，U-Sport App 後台系統自動判斷<strong>當月累積步行數</strong>，給予相對應 U 幣獎勵。
+      </div>
+      <div class="reward-grid">
+        <div class="reward-item">
+          <div class="reward-steps">20 萬步</div>
+          <div class="reward-coin">🪙 ＋30 U 幣</div>
+          <div class="reward-lbl" data-i18n="goal1_lbl">每月目標一</div>
+        </div>
+        <div class="reward-item">
+          <div class="reward-steps">30 萬步</div>
+          <div class="reward-coin">🪙 ＋再 50 U 幣</div>
+          <div class="reward-lbl" data-i18n="g3_max">每月最高 80U</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 線上課程 -->
+    <div class="guide-section">
+      <div class="guide-header">
+        <div class="guide-ico">💻</div>
+        <div>
+          <div class="guide-title" data-i18n="g4_title">在家輕鬆動！線上課程集 U 幣</div>
+          <div class="guide-subtitle" data-i18n="g4_sub">Welltivity 樂運動 · 115年3月起上架</div>
+        </div>
+      </div>
+      <div class="g-text" style="color:var(--ink2);font-size:13px;line-height:1.7;margin-bottom:12px" data-i18n="g4_body">
+        U-Sport 與 Welltivity 合作，購買【樂運動】套裝方案，當日觀看影片累積 <strong>30 分鐘</strong>，次日系統發放 <strong>5 U 幣</strong>！
+      </div>
+      <a class="guide-link" href="https://www.welltivity.com.tw/usport-product-list" target="_blank" rel="noopener">
+        <span data-i18n="g4_link">前往 Welltivity 樂運動課程</span><span class="arrow">→</span>
+      </a>
+      <div class="guide-note" data-i18n="g4_note">📅 115年度課程於 3月2日起全面上架，敬請期待！</div>
+    </div>
+
+    <!-- U幣怎麼用 -->
+    <div class="guide-section">
+      <div class="guide-header">
+        <div class="guide-ico">🪙</div>
+        <div>
+          <div class="guide-title" data-i18n="g5_title">U 幣怎麼用？1U = 1元</div>
+          <div class="guide-subtitle" data-i18n="g5_sub">多元兌換方式</div>
+        </div>
+      </div>
+      <div class="guide-steps">
+        <div class="g-step"><div class="g-num">💳</div><div class="g-text" data-i18n="g5_s1"><strong>場館折抵</strong>：入場費、課程費、場地租借直接扣抵</div></div>
+        <div class="g-step"><div class="g-num">🚌</div><div class="g-text" data-i18n="g5_s2"><strong>悠遊卡</strong>：累積滿 100U 可轉換為悠遊卡儲值金，搭捷運、超商皆可用</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══ PANEL: LOG ══ -->
+<div class="panel" id="panel-log">
+  <div class="sec-label" data-i18n="timeline_label">📅 本月運動日曆</div>
+  <div class="timeline-month" id="timeline"></div>
+  <div style="height:8px"></div>
+  <div class="log-toolbar">
+    <button class="log-filter on" id="lf-all" onclick="setLogFilter('all',this)" data-i18n="lf_all">全部</button>
+    <button class="log-filter" id="lf-venue" onclick="setLogFilter('venue',this)" data-i18n="lf_venue">入館</button>
+    <button class="log-filter" id="lf-walk" onclick="setLogFilter('walk',this)" data-i18n="lf_walk">步行</button>
+  </div>
+  <div class="logs" id="logs">
+    <div class="log-empty" data-i18n="log_empty">還沒有紀錄<br/>開始追蹤或新增步數後會出現在這裡</div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+</div><!-- /wrap -->
 
 <!-- ══ APP BAR ══ -->
 <div class="appbar">
   <div class="appbar-grid">
-    <a class="app-btn app-ios"
-       href="https://apps.apple.com/tw/app/u-sport%E8%87%BA%E5%8C%97%E6%A8%82%E9%81%8B%E5%8B%95/id6479229298"
-       target="_blank" rel="noopener">
-       <span style="font-size:16px"></span> App Store
+    <a class="app-btn app-ios" href="https://apps.apple.com/tw/app/u-sport%E8%87%BA%E5%8C%97%E6%A8%82%E9%81%8B%E5%8B%95/id6479229298" target="_blank" rel="noopener">
+      <span style="font-size:16px"></span> <span data-i18n="app_ios">App Store</span>
     </a>
-    <a class="app-btn app-android"
-       href="https://play.google.com/store/apps/details?id=com.usport.app"
-       target="_blank" rel="noopener">
-       <span style="font-size:16px">▶</span> Google Play
+    <a class="app-btn app-android" href="https://play.google.com/store/apps/details?id=com.usport.app" target="_blank" rel="noopener">
+      <span style="font-size:16px">▶</span> <span data-i18n="app_android">Google Play</span>
     </a>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════
-// U-Sport 集點小幫手 · 主程式 · 2026
-// ══════════════════════════════════════════════
+'use strict';
+// ══════════════════════════════════════════════════════
+// U-Sport 集點小幫手 · v3 · 2026
+// ══════════════════════════════════════════════════════
 
-// 場館座標已用 Google Maps 核實
+// ── i18n ──────────────────────────────────────────────
+const STRINGS = {
+  zh: {
+    logo_sub:'臺北樂運動 · 2026', hero_tag:'智慧定位提醒',
+    hero_title:'靠近場館<br/><em>自動通知集點</em>',
+    hero_desc:'涵蓋台北 240+ 合作運動場館，500m 內即提醒，別再忘記集 U 幣！',
+    btn_start:'🏃 開始追蹤定位', btn_stop:'⏹ 停止追蹤',
+    status_on:'追蹤中', status_off:'未追蹤',
+    tab_venues:'🏟️ 場館雷達', tab_walk:'🚶 萬步走', tab_guide:'📖 集點指南', tab_log:'🔔 紀錄',
+    dash_coins:'本月累積 U 幣', dash_visits:'本月運動次數', dash_steps:'本月步數', dash_nearest:'最近場館倒數',
+    map_label:'📡 附近場館地圖', map_hint:'開啟追蹤後顯示附近場館',
+    venues_label:'🏪 合作場館列表', search_ph:'搜尋場館名稱…', fav_only:'⭐ 收藏',
+    walk_title:'U-Walk 健康萬步走', walk_period:'115年 1月1日 ～ 6月30日 · 每月步行達標得 U 幣',
+    step_label:'本月累積步數', goal1_lbl:'每月目標一', goal2_lbl:'每月目標二',
+    pedo_label:'📟 計步器 API', src_none:'未連接', src_api:'● API 連接中', src_manual:'✎ 手動輸入',
+    pedo_start:'🦶 啟用裝置計步 API', pedo_stop:'⏹ 停用計步 API',
+    manual_ph:'手動輸入步數…', add_btn:'＋ 加入',
+    walk_note:'🏆 <strong>20萬步→30U</strong>、<strong>30萬步再+50U</strong>，每月最高 <strong>80U幣</strong>。',
+    reset_btn:'🗑 重設本月步數',
+    guide_label:'📖 集點指南',
+    g1_title:'入館運動集點', g1_sub:'3 步驟簡單集 U 幣',
+    g1_s1:'下載 <strong>U-Sport App</strong> 並完成會員註冊',
+    g1_s2:'前往<strong>合作場館</strong>運動（可在 App 左下角「運動地圖」查詢附近場館）',
+    g1_s3:'運動前/後請場館人員協助<strong>掃描會員 QR Code</strong> → 成功累積 <strong>5 U 幣</strong>！',
+    g1_note:'💡 入場滿 36 次後，從第 37 次起每次集點翻倍為 <strong>10 U 幣</strong>！',
+    g2_title:'任務集點', g2_sub:'限時活動、節慶任務',
+    g2_body:'不定期推出限時任務等互動活動，如跨局處專案、節慶活動等，完成任務即可集 U 幣！',
+    g2_link:'查看完整計畫說明',
+    g3_title:'U-Walk 健康萬步走', g3_sub:'115年 1月1日 ～ 6月30日',
+    g3_body:'同意與手機內建健康數據串接後，U-Sport App 後台系統自動判斷<strong>當月累積步行數</strong>，給予相對應 U 幣獎勵。',
+    g3_max:'每月最高 80U',
+    g4_title:'在家輕鬆動！線上課程集 U 幣', g4_sub:'Welltivity 樂運動 · 115年3月起上架',
+    g4_body:'U-Sport 與 Welltivity 合作，購買【樂運動】套裝方案，當日觀看影片累積 <strong>30 分鐘</strong>，次日系統發放 <strong>5 U 幣</strong>！',
+    g4_link:'前往 Welltivity 樂運動課程', g4_note:'📅 115年度課程於 3月2日起全面上架，敬請期待！',
+    g5_title:'U 幣怎麼用？1U = 1元', g5_sub:'多元兌換方式',
+    g5_s1:'<strong>場館折抵</strong>：入場費、課程費、場地租借直接扣抵',
+    g5_s2:'<strong>悠遊卡</strong>：累積滿 100U 可轉換為悠遊卡儲值金',
+    timeline_label:'📅 本月運動日曆',
+    lf_all:'全部', lf_venue:'入館', lf_walk:'步行',
+    log_empty:'還沒有紀錄<br/>開始追蹤或新增步數後會出現在這裡',
+    app_ios:'App Store', app_android:'Google Play',
+    install_title:'加入主畫面', install_desc:'像 App 一樣使用，支援背景通知', install_btn:'安裝',
+    near_badge:'📍 附近！記得集點', open_:'營業中', closing_:'即將關閉', closed_:'休息中',
+    no_results:'找不到符合的場館',
+    toast_geo:'正在取得定位…', toast_demo:'使用示範位置（台北信義）',
+    toast_perm:'請允許通知權限才能集點提醒', toast_no_geo:'此裝置不支援定位',
+    toast_pedo_on:'計步 API 已啟用', toast_pedo_off:'計步 API 已停用',
+    toast_pedo_ns:'此裝置不支援計步 API，請手動輸入',
+    toast_added:'已加入 {n} 步', toast_quick:'＋{k}K 步，共 {t} 步',
+    toast_reset:'已重設步數', toast_near:'靠近 {name}！快去集點',
+    toast_visit:'已記錄運動！本月第 {n} 次',
+    confirm_reset:'確定要重設本月所有步數嗎？',
+  },
+  en: {
+    logo_sub:'Taipei Sport · 2026', hero_tag:'Smart Location Alert',
+    hero_title:'Near a Venue?<br/><em>Auto Remind to Check In</em>',
+    hero_desc:'Covers 240+ partner sports venues in Taipei. Alerts within 500m!',
+    btn_start:'🏃 Start Tracking', btn_stop:'⏹ Stop Tracking',
+    status_on:'Tracking', status_off:'Idle',
+    tab_venues:'🏟️ Radar', tab_walk:'🚶 U-Walk', tab_guide:'📖 Guide', tab_log:'🔔 Log',
+    dash_coins:'U-Coins This Month', dash_visits:'Visits This Month', dash_steps:'Steps This Month', dash_nearest:'Nearest Venue',
+    map_label:'📡 Nearby Venues Map', map_hint:'Start tracking to see nearby venues',
+    venues_label:'🏪 Partner Venues', search_ph:'Search venues…', fav_only:'⭐ Saved',
+    walk_title:'U-Walk Healthy Steps', walk_period:'Jan 1 – Jun 30, 2026 · Monthly step goals',
+    step_label:'Monthly Steps', goal1_lbl:'Goal 1', goal2_lbl:'Goal 2',
+    pedo_label:'📟 Pedometer API', src_none:'Not connected', src_api:'● API Active', src_manual:'✎ Manual',
+    pedo_start:'🦶 Enable Device Pedometer', pedo_stop:'⏹ Disable Pedometer',
+    manual_ph:'Enter steps manually…', add_btn:'＋ Add',
+    walk_note:'🏆 <strong>200K steps → +30U</strong>, <strong>300K → +50U more</strong>, max <strong>80U/month</strong>.',
+    reset_btn:'🗑 Reset Monthly Steps',
+    guide_label:'📖 How to Earn U-Coins',
+    g1_title:'Check-in at Venues', g1_sub:'3 easy steps',
+    g1_s1:'Download <strong>U-Sport App</strong> and complete registration',
+    g1_s2:'Visit a <strong>partner venue</strong> to exercise (find nearby venues via the App map)',
+    g1_s3:'Ask staff to scan your <strong>Member QR Code</strong> → earn <strong>5 U-Coins</strong>!',
+    g1_note:'💡 After 36 check-ins, earn <strong>10 U-Coins</strong> per visit (double)!',
+    g2_title:'Mission Check-ins', g2_sub:'Limited events & seasonal activities',
+    g2_body:'Complete special missions and events in the app to earn bonus U-Coins!',
+    g2_link:'View Full Plan Details',
+    g3_title:'U-Walk Healthy Steps', g3_sub:'Jan 1 – Jun 30, 2026',
+    g3_body:'Link your phone\'s Health data in the app. The system automatically counts your <strong>monthly steps</strong> and awards U-Coins.',
+    g3_max:'Max 80U/month',
+    g4_title:'Work Out at Home!', g4_sub:'Welltivity Online Classes · From Mar 2026',
+    g4_body:'Watch Welltivity online workout videos for <strong>30+ minutes/day</strong> → earn <strong>5 U-Coins</strong> next day!',
+    g4_link:'Browse Welltivity Classes', g4_note:'📅 Classes launch March 2, 2026!',
+    g5_title:'How to Use U-Coins (1U = NT$1)', g5_sub:'Multiple redemption options',
+    g5_s1:'<strong>Venue Discount</strong>: Deduct from entry, classes, or facility rental',
+    g5_s2:'<strong>EasyCard</strong>: Convert 100+ U-Coins to EasyCard credit for MRT & convenience stores',
+    timeline_label:'📅 Monthly Activity Calendar',
+    lf_all:'All', lf_venue:'Venue', lf_walk:'Walk',
+    log_empty:'No records yet<br/>Start tracking or add steps to see history',
+    app_ios:'App Store', app_android:'Google Play',
+    install_title:'Add to Home Screen', install_desc:'Use like a native app with background alerts', install_btn:'Install',
+    near_badge:'📍 Nearby! Time to check in', open_:'Open', closing_:'Closing soon', closed_:'Closed',
+    no_results:'No venues found',
+    toast_geo:'Getting location…', toast_demo:'Using demo location (Xinyi, Taipei)',
+    toast_perm:'Please allow notification permission', toast_no_geo:'Geolocation not supported',
+    toast_pedo_on:'Pedometer API enabled', toast_pedo_off:'Pedometer API disabled',
+    toast_pedo_ns:'Pedometer not supported — please enter steps manually',
+    toast_added:'Added {n} steps', toast_quick:'＋{k}K steps, total {t}',
+    toast_reset:'Steps reset', toast_near:'Near {name}! Time to check in',
+    toast_visit:'Visit logged! #{n} this month',
+    confirm_reset:'Reset all monthly steps?',
+  }
+};
+let lang = localStorage.getItem('usport_lang') || 'zh';
+function t(k, vars){
+  let s = STRINGS[lang][k] || STRINGS.zh[k] || k;
+  if(vars) Object.keys(vars).forEach(v => s = s.replace('{'+v+'}', vars[v]));
+  return s;
+}
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(STRINGS[lang][k]!==undefined) el.innerHTML=t(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const k=el.getAttribute('data-i18n-ph');
+    if(STRINGS[lang][k]!==undefined) el.placeholder=t(k);
+  });
+  document.documentElement.lang = lang==='zh'?'zh-TW':'en';
+}
+function setLang(l){
+  lang=l; localStorage.setItem('usport_lang',l);
+  document.getElementById('lang-zh').classList.toggle('active',l==='zh');
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  applyI18n(); updateUI(); renderVenues(lastVenueList); renderLogs(); updateDashboard();
+  closeLangModal(); showToast('🌐', l==='zh'?'繁體中文':'English');
+}
+function openLangModal(){ document.getElementById('lang-modal').classList.add('show'); }
+function closeLangModal(e){ if(!e||e.target===document.getElementById('lang-modal')) document.getElementById('lang-modal').classList.remove('show'); }
+
+// ── Theme ──────────────────────────────────────────────
+let isDark = localStorage.getItem('usport_theme')==='dark';
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', isDark?'dark':'light');
+  document.getElementById('theme-btn').textContent = isDark?'☀️':'🌙';
+}
+function toggleTheme(){
+  isDark=!isDark; localStorage.setItem('usport_theme',isDark?'dark':'light');
+  applyTheme(); showToast(isDark?'🌙':'☀️', isDark?'深色模式':'淺色模式');
+}
+
+// ── Venue Data ────────────────────────────────────────
+const VENUE_TYPES = ['全部','健身房','游泳池','球類','綜合'];
 const VENUES = [
-  { id:1,  name:'大安運動中心',     addr:'大安區建國南路二段333號', emoji:'🏋️', lat:25.0236, lng:121.5380, r:500 },
-  { id:2,  name:'中山運動中心',     addr:'中山區樂群二路128號',     emoji:'🏊', lat:25.0808, lng:121.5570, r:500 },
-  { id:3,  name:'World Gym 信義店', addr:'信義區松仁路28號',         emoji:'💪', lat:25.0356, lng:121.5662, r:500 },
-  { id:4,  name:'健身工廠 南京店',  addr:'松山區南京東路四段',       emoji:'🔥', lat:25.0514, lng:121.5558, r:500 },
-  { id:5,  name:'松山運動中心',     addr:'松山區健康路108號',         emoji:'🏸', lat:25.0502, lng:121.5780, r:500 },
-  { id:6,  name:'內湖運動中心',     addr:'內湖區內湖路二段216號',     emoji:'🎾', lat:25.0762, lng:121.5877, r:500 },
-  { id:7,  name:'士林運動中心',     addr:'士林區基河路33號',           emoji:'🏃', lat:25.0926, lng:121.5245, r:500 },
-  { id:8,  name:'World Gym 中山店', addr:'中山區中山北路二段77號',   emoji:'💪', lat:25.0568, lng:121.5231, r:500 },
+  {id:1,  name:'大安運動中心',      addr:'大安區建國南路二段333號', emoji:'🏋️', lat:25.0236,lng:121.5380,r:500,type:'綜合',   open:[6,22]},
+  {id:2,  name:'中山運動中心',      addr:'中山區樂群二路128號',     emoji:'🏊', lat:25.0808,lng:121.5570,r:500,type:'游泳池', open:[6,22]},
+  {id:3,  name:'World Gym 信義',    addr:'信義區松仁路28號',         emoji:'💪', lat:25.0356,lng:121.5662,r:500,type:'健身房', open:[6,24]},
+  {id:4,  name:'健身工廠 南京店',   addr:'松山區南京東路四段',       emoji:'🔥', lat:25.0514,lng:121.5558,r:500,type:'健身房', open:[5,24]},
+  {id:5,  name:'松山運動中心',      addr:'松山區健康路108號',         emoji:'🏸', lat:25.0502,lng:121.5780,r:500,type:'球類',   open:[6,22]},
+  {id:6,  name:'內湖運動中心',      addr:'內湖區內湖路二段216號',     emoji:'🎾', lat:25.0762,lng:121.5877,r:500,type:'球類',   open:[6,22]},
+  {id:7,  name:'士林運動中心',      addr:'士林區基河路33號',           emoji:'🏃', lat:25.0926,lng:121.5245,r:500,type:'綜合',   open:[6,22]},
+  {id:8,  name:'World Gym 中山',    addr:'中山區中山北路二段77號',   emoji:'💪', lat:25.0568,lng:121.5231,r:500,type:'健身房', open:[6,24]},
+  {id:9,  name:'萬華運動中心',      addr:'萬華區東園街131號',         emoji:'🏊', lat:25.0275,lng:121.4994,r:500,type:'游泳池', open:[6,22]},
+  {id:10, name:'文山運動中心',      addr:'文山區木柵路四段97號',     emoji:'🎱', lat:24.9989,lng:121.5670,r:500,type:'球類',   open:[6,22]},
+  {id:11, name:'北投運動中心',      addr:'北投區中央北路一段59號',   emoji:'🧘', lat:25.1313,lng:121.5016,r:500,type:'綜合',   open:[6,22]},
+  {id:12, name:'南港運動中心',      addr:'南港區玉成街',             emoji:'🏋️', lat:25.0544,lng:121.6081,r:500,type:'健身房', open:[6,22]},
+  {id:13, name:'健身工廠 敦南店',   addr:'大安區敦化南路一段',       emoji:'🔥', lat:25.0373,lng:121.5497,r:500,type:'健身房', open:[5,24]},
+  {id:14, name:'World Gym 南港店',  addr:'南港區忠孝東路七段',       emoji:'💪', lat:25.0520,lng:121.6110,r:500,type:'健身房', open:[6,24]},
 ];
 
-// ── 狀態
-let isTracking = false, watchId = null, userPos = null;
-let notified = new Set(), logs = [], mapRAF = null;
-let mapEl = null, mapCtx = null;
+// ── App State ─────────────────────────────────────────
+let isTracking=false, watchId=null, userPos=null;
+let notified=new Set(), logs=[], mapRAF=null;
+let mapEl=null, mapCtx=null;
+let pedoEnabled=false, pedoWatchId=null, stepSource='none';
+let totalSteps=parseInt(localStorage.getItem('usport_steps')||'0');
+let monthVisits=parseInt(localStorage.getItem('usport_visits')||'0');
+let monthCoins=parseInt(localStorage.getItem('usport_coins')||'0');
+let savedLogs=JSON.parse(localStorage.getItem('usport_logs')||'[]');
+let favs=new Set(JSON.parse(localStorage.getItem('usport_favs')||'[]'));
+let activeType='全部', favFilterOn=false, logFilter='all';
+let lastVenueList=null;
+let deferredPrompt=null;
+let activityDays=JSON.parse(localStorage.getItem('usport_days')||'{}');
 
-// Pedometer
-let pedoEnabled    = false;
-let pedoWatchId    = null;
-let pedoSupported  = false;
-let stepSource     = 'none'; // 'api' | 'manual' | 'none'
+logs = savedLogs;
 
-// 步數（從 localStorage 恢復）
-let totalSteps = parseInt(localStorage.getItem('usport_steps') || '0');
-
-// ── 初始化
-window.addEventListener('DOMContentLoaded', () => {
-  registerSW();
-  renderVenues(null);
-  initMap();
-  updateWalk(totalSteps);
-  detectPedometerSupport();
+// ── Init ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  applyTheme(); applyI18n();
+  registerSW(); buildTypeChips();
+  renderVenues(null); initMap(); updateWalk(totalSteps);
+  updateDashboard(); renderLogs(); buildTimeline();
+  detectPedo(); checkInstall();
+  document.getElementById('manual-input').addEventListener('keydown', e=>{if(e.key==='Enter')addManualSteps();});
+  // 30s 倒數 ticker
+  setInterval(updateCountdown, 1000);
+  setInterval(updateHoursBar, 60000);
 });
 
-// ── Service Worker
-async function registerSW() {
-  if ('serviceWorker' in navigator) {
-    try { await navigator.serviceWorker.register('sw.js'); } catch(e) {}
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault(); deferredPrompt=e;
+  if(!localStorage.getItem('install_dismissed')) showInstallBanner();
+});
+
+// ── SW ────────────────────────────────────────────────
+async function registerSW(){
+  if('serviceWorker' in navigator){
+    try{
+      const reg = await navigator.serviceWorker.register('sw.js');
+      // Periodic Background Sync
+      if('periodicSync' in reg){
+        try{
+          await reg.periodicSync.register('geo-check',{minInterval:5*60*1000});
+        }catch(e){}
+      }
+    }catch(e){}
   }
 }
 
-// ── Tab 切換
-function switchTab(name, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+// ── Install Banner ────────────────────────────────────
+function showInstallBanner(){ document.getElementById('install-banner').classList.add('show'); }
+function dismissInstall(){ document.getElementById('install-banner').classList.remove('show'); localStorage.setItem('install_dismissed','1'); }
+async function installPWA(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const {outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted') dismissInstall();
+  deferredPrompt=null;
+}
+function checkInstall(){
+  if(window.matchMedia('(display-mode: standalone)').matches) return;
+  const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  if(isIOS&&!localStorage.getItem('install_dismissed')) showInstallBanner();
+}
+
+// ── Tab ───────────────────────────────────────────────
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='log') buildTimeline();
 }
 
-// ════════════════════════════
-// 地理圍欄追蹤
-// ════════════════════════════
-async function toggleTracking() {
-  isTracking ? stopTracking() : await startTracking();
+// ── Type Filter ───────────────────────────────────────
+function buildTypeChips(){
+  const c=document.getElementById('type-chips');
+  VENUE_TYPES.forEach(type=>{
+    const chip=document.createElement('button');
+    chip.className='chip'+(type==='全部'?' on':'');
+    chip.textContent=type;
+    chip.onclick=()=>{
+      document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+      chip.classList.add('on'); activeType=type; filterVenues();
+    };
+    c.appendChild(chip);
+  });
 }
 
-async function startTracking() {
-  const np = await Notification.requestPermission();
-  if (np !== 'granted') { showToast('⚠️', '請允許通知權限才能集點提醒'); return; }
-  if (!('geolocation' in navigator)) { showToast('❌', '此裝置不支援定位'); return; }
-  showToast('📍', '正在取得定位…');
+function toggleFavFilter(){
+  favFilterOn=!favFilterOn;
+  document.getElementById('fav-filter-btn').classList.toggle('on',favFilterOn);
+  filterVenues();
+}
+
+function filterVenues(){
+  const q=document.getElementById('venue-search').value.trim().toLowerCase();
+  let list=lastVenueList||VENUES.map(v=>({...v,d:null}));
+  if(activeType!=='全部') list=list.filter(v=>v.type===activeType);
+  if(favFilterOn) list=list.filter(v=>favs.has(v.id));
+  if(q) list=list.filter(v=>v.name.toLowerCase().includes(q)||v.addr.toLowerCase().includes(q));
+  renderVenues(list, false);
+}
+
+// ── Tracking ──────────────────────────────────────────
+async function toggleTracking(){ isTracking?stopTracking():await startTracking(); }
+
+async function startTracking(){
+  const np=await Notification.requestPermission();
+  if(np!=='granted'){showToast('⚠️',t('toast_perm'));return;}
+  if(!('geolocation' in navigator)){showToast('❌',t('toast_no_geo'));return;}
+  showToast('📍',t('toast_geo'));
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      activate();
-    },
-    err => {
-      // 示範用：台北信義區市政府前
-      userPos = { lat: 25.0408, lng: 121.5654 };
-      showToast('🗺️', '使用示範位置（台北信義）');
-      activate();
-    },
-    { enableHighAccuracy: true, timeout: 8000 }
+    pos=>{userPos={lat:pos.coords.latitude,lng:pos.coords.longitude};activate();},
+    ()=>{userPos={lat:25.0408,lng:121.5654};showToast('🗺️',t('toast_demo'));activate();},
+    {enableHighAccuracy:true,timeout:8000}
   );
 }
 
-function activate() {
-  isTracking = true;
-  updateUI();
-  startMapLoop();
-  checkVenues();
-  // 持續監聽位置變化
-  watchId = navigator.geolocation.watchPosition(
-    pos => {
-      userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      checkVenues();
-    },
-    () => {},
-    { enableHighAccuracy: true, maximumAge: 15000, timeout: 10000 }
+function activate(){
+  isTracking=true; updateUI(); startMapLoop(); checkVenues(); updateHoursBar();
+  watchId=navigator.geolocation.watchPosition(
+    pos=>{userPos={lat:pos.coords.latitude,lng:pos.coords.longitude};checkVenues();},
+    ()=>{},{enableHighAccuracy:true,maximumAge:15000,timeout:10000}
   );
-  // 備用：每 30 秒再掃一次（確保不漏掉）
-  setInterval(() => { if (isTracking) checkVenues(); }, 30000);
+  setInterval(()=>{if(isTracking)checkVenues();},30000);
 }
 
-function stopTracking() {
-  isTracking = false;
-  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-  if (mapRAF) { cancelAnimationFrame(mapRAF); mapRAF = null; }
-  notified.clear();
-  updateUI();
-  renderVenues(null);
+function stopTracking(){
+  isTracking=false;
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;}
+  if(mapRAF){cancelAnimationFrame(mapRAF);mapRAF=null;}
+  notified.clear(); updateUI(); renderVenues(null);
   document.getElementById('map-cover').classList.remove('hidden');
-  showToast('⏹', '已停止追蹤');
+  document.getElementById('hours-bar').style.display='none';
+  document.getElementById('dash-nearest-name').textContent='開始追蹤後顯示';
+  document.getElementById('dash-countdown').textContent='--:--';
+  showToast('⏹',t('btn_stop'));
 }
 
-function updateUI() {
-  const btn = document.getElementById('btn-track');
-  const pill = document.getElementById('pill');
-  const lbl = document.getElementById('pill-label');
-  if (isTracking) {
-    btn.textContent = '⏹ 停止追蹤';
-    btn.classList.add('stop');
-    pill.classList.add('on');
-    lbl.textContent = '追蹤中';
+function updateUI(){
+  const btn=document.getElementById('btn-track');
+  const pill=document.getElementById('pill');
+  const lbl=document.getElementById('pill-label');
+  if(isTracking){
+    btn.innerHTML='⏹ '+t('btn_stop').replace('⏹ ','');
+    btn.classList.add('stop'); pill.classList.add('on'); lbl.textContent=t('status_on');
     document.getElementById('map-cover').classList.add('hidden');
-  } else {
-    btn.textContent = '🏃 開始追蹤定位';
-    btn.classList.remove('stop');
-    pill.classList.remove('on');
-    lbl.textContent = '未追蹤';
+  }else{
+    btn.innerHTML='🏃 '+t('btn_start').replace('🏃 ','');
+    btn.classList.remove('stop'); pill.classList.remove('on'); lbl.textContent=t('status_off');
   }
 }
 
-// ════════════════════════════
-// 距離計算（Haversine，正確版）
-// ════════════════════════════
-function haversine(a, b) {
-  const R  = 6371000; // 地球半徑（公尺）
-  const φ1 = a.lat * Math.PI / 180;
-  const φ2 = b.lat * Math.PI / 180;
-  const Δφ = (b.lat - a.lat) * Math.PI / 180;
-  const Δλ = (b.lng - a.lng) * Math.PI / 180;
-  const sinΔφ = Math.sin(Δφ / 2);
-  const sinΔλ = Math.sin(Δλ / 2);
-  const a2 = sinΔφ * sinΔφ + Math.cos(φ1) * Math.cos(φ2) * sinΔλ * sinΔλ;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a2), Math.sqrt(1 - a2)));
+// ── Distance (Haversine) ──────────────────────────────
+function haversine(a,b){
+  const R=6371000,φ1=a.lat*Math.PI/180,φ2=b.lat*Math.PI/180;
+  const Δφ=(b.lat-a.lat)*Math.PI/180,Δλ=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(Δφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
+}
+function fmtDist(m){
+  if(m===null)return '---';
+  return m>=1000?(m/1000).toFixed(1)+' km':m+' m';
 }
 
-function fmtDist(m) {
-  if (m === null) return '---';
-  if (m >= 1000) return (m / 1000).toFixed(1) + ' km';
-  return m + ' m';
-}
-
-// ════════════════════════════
-// 場館掃描 & 通知
-// ════════════════════════════
-function checkVenues() {
-  if (!userPos) return;
-  const list = VENUES
-    .map(v => ({ ...v, d: haversine(userPos, { lat: v.lat, lng: v.lng }) }))
-    .sort((a, b) => a.d - b.d);
-  renderVenues(list);
-  list.forEach(v => {
-    if (v.d <= v.r && !notified.has(v.id)) {
-      notified.add(v.id);
-      sendNotify(v);
-      addLog(v);
+// ── Venue Check ───────────────────────────────────────
+function checkVenues(){
+  if(!userPos)return;
+  const list=VENUES.map(v=>({...v,d:haversine(userPos,{lat:v.lat,lng:v.lng})})).sort((a,b)=>a.d-b.d);
+  lastVenueList=list; filterVenues();
+  list.forEach(v=>{
+    if(v.d<=v.r&&!notified.has(v.id)){
+      notified.add(v.id); sendNotify(v); addVenueLog(v);
     }
   });
+  updateDashboard();
+  updateCountdown();
+  updateHoursBar();
 }
 
-function sendNotify(v) {
-  if (Notification.permission !== 'granted') return;
-  const n = new Notification(`🏃 U-Sport 集點提醒 — ${v.name}`, {
-    body: `你距離「${v.name}」只有 ${v.d} 公尺！打開 U-Sport App 出示 QR Code，入場即得 5 U 幣 🎉`,
-    tag: `v-${v.id}`,
+function getHoursStatus(v){
+  const now=new Date(), h=now.getHours();
+  if(!v.open) return {status:'open',cls:'open',label:''};
+  const [s,e]=v.open;
+  if(h<s||h>=e) return {status:'closed',cls:'closed',label:t('closed_')};
+  if(h>=e-1) return {status:'closing',cls:'closing',label:t('closing_')};
+  return {status:'open',cls:'open',label:t('open_')};
+}
+
+function sendNotify(v){
+  if(Notification.permission!=='granted')return;
+  const n=new Notification(`🏃 U-Sport — ${v.name}`,{
+    body:`${lang==='zh'?'你距離「'+v.name+'」只有':'You are '+v.d+'m from'} ${v.d} ${lang==='zh'?'公尺！快出示 QR Code 集 5 U 幣！':'! Show your QR code to earn 5 U-Coins!'}`,
+    tag:`v-${v.id}`,
   });
-  n.onclick = () => { window.open('https://usport.gov.taipei', '_blank'); n.close(); };
-  showToast('🪙', `靠近 ${v.name}！快去集點`);
+  n.onclick=()=>{window.open('https://usport.gov.taipei','_blank');n.close();};
+  showToast('🪙',t('toast_near',{name:v.name}));
 }
 
-function addLog(v) {
-  const t = new Date();
-  const time = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-  logs.unshift({ name: v.name, emoji: v.emoji, d: v.d, time });
-  renderLogs();
-}
-
-function renderLogs() {
-  const el = document.getElementById('logs');
-  if (!logs.length) {
-    el.innerHTML = '<div class="log-empty">還沒有紀錄<br/>開始追蹤並靠近場館後會出現在這裡</div>';
-    return;
-  }
-  el.innerHTML = logs.slice(0, 8).map(l => `
-    <div class="log">
-      <div class="log-body">${l.emoji} <strong>${l.name}</strong>，距離 ${l.d} m，提醒集點</div>
-      <div class="log-time">${l.time}</div>
-    </div>`).join('');
-}
-
-function renderVenues(list) {
-  const el = document.getElementById('stores');
-  const src = list || VENUES.map(v => ({ ...v, d: null }));
-  el.innerHTML = src.slice(0, 8).map(v => {
-    const near = v.d !== null && v.d <= v.r;
+// ── Venue Cards ───────────────────────────────────────
+function renderVenues(list, save=true){
+  if(save&&list) lastVenueList=list;
+  const el=document.getElementById('stores');
+  const src=list||VENUES.map(v=>({...v,d:null}));
+  if(!src.length){el.innerHTML=`<div class="no-results">${t('no_results')}</div>`;return;}
+  el.innerHTML=src.map(v=>{
+    const near=v.d!==null&&v.d<=v.r;
+    const isFav=favs.has(v.id);
+    const hrs=getHoursStatus(v);
     return `
-    <div class="store ${near ? 'near' : ''}">
+    <div class="store ${near?'near':''} ${isFav?'fav':''}" onclick="toggleFav(${v.id},event)">
       <div class="store-ico">${v.emoji}</div>
       <div class="store-info">
         <div class="store-name">${v.name}</div>
         <div class="store-addr">${v.addr}</div>
-        ${near ? '<div class="near-badge">📍 附近！記得集點</div>' : ''}
+        ${hrs.label?`<div class="store-hours ${hrs.cls}">${hrs.label}${v.open?' · '+v.open[0]+':00–'+v.open[1]+':00':''}</div>`:''}
+        ${near?`<div class="near-badge">${t('near_badge')}</div>`:''}
       </div>
-      <div class="store-dist ${v.d === null || v.d > 1000 ? 'far' : ''}">${fmtDist(v.d)}</div>
+      <div class="store-right">
+        <div class="store-dist ${!v.d||v.d>1000?'far':''}">${fmtDist(v.d)}</div>
+        <button class="store-fav-btn" onclick="toggleFav(${v.id},event)">${isFav?'⭐':'☆'}</button>
+      </div>
     </div>`;
   }).join('');
 }
 
-// ════════════════════════════
-// Pedometer API
-// ════════════════════════════
-function detectPedometerSupport() {
-  // Sensor API (Android Chrome 67+)
-  if (typeof Accelerometer !== 'undefined' || typeof Pedometer !== 'undefined') {
-    pedoSupported = true;
+function toggleFav(id,e){
+  e.stopPropagation();
+  if(favs.has(id)) favs.delete(id); else favs.add(id);
+  localStorage.setItem('usport_favs',JSON.stringify([...favs]));
+  filterVenues();
+}
+
+// ── Hours Countdown Bar ───────────────────────────────
+function updateHoursBar(){
+  if(!userPos||!lastVenueList) return;
+  const bar=document.getElementById('hours-bar');
+  const txt=document.getElementById('hours-text');
+  const nearest=lastVenueList[0];
+  if(!nearest||!nearest.open){bar.style.display='none';return;}
+  bar.style.display='flex';
+  const now=new Date(), h=now.getHours(), m=now.getMinutes();
+  const [s,e]=nearest.open;
+  const hrs=getHoursStatus(nearest);
+  let msg='';
+  if(hrs.status==='open'){
+    const rem=(e-h-1)*60+(60-m);
+    msg=`<strong>${nearest.name}</strong> 今日 ${e}:00 關閉，還有 <strong>${Math.floor(rem/60)}h${rem%60}m</strong> 可以入場集點`;
+  } else if(hrs.status==='closing'){
+    msg=`<strong>${nearest.name}</strong> 即將關閉！快去集點！`;
+  } else {
+    const nexts=s-h>0?s-h:24-(h-s);
+    msg=`<strong>${nearest.name}</strong> 目前休息中，<strong>${nexts}小時後</strong>重新開放`;
   }
-  // Fallback: DeviceMotionEvent (broader support)
-  if (window.DeviceMotionEvent) {
-    pedoSupported = true;
-  }
-  const btn = document.getElementById('pedo-toggle-btn');
-  if (!pedoSupported) {
-    btn.textContent = '⚠️ 此裝置不支援計步 API';
-    btn.disabled = true;
-    btn.style.opacity = '0.4';
+  txt.innerHTML=msg;
+}
+
+// ── Dashboard ─────────────────────────────────────────
+function updateDashboard(){
+  // Coins
+  document.getElementById('dash-coins').textContent=monthCoins;
+  document.getElementById('dash-coin-bar').style.width=Math.min(monthCoins/500*100,100)+'%';
+  document.getElementById('dash-coins-sub').textContent=monthVisits>=36?'每次 +10U（翻倍中！）':'每次 +5U';
+  // Visits
+  document.getElementById('dash-visits').textContent=monthVisits;
+  document.getElementById('dash-visit-bar').style.width=Math.min(monthVisits/36*100,100)+'%';
+  document.getElementById('dash-visits-sub').textContent=monthVisits>=36?'🔥 已達翻倍資格！':`第 ${monthVisits+1} 次後${monthVisits<36?'，距翻倍還差 '+(36-monthVisits)+' 次':''}`;
+  // Steps
+  const sk=totalSteps>=1000?(totalSteps/1000).toFixed(1)+'K':totalSteps+'';
+  document.getElementById('dash-steps-k').textContent=sk;
+  const goal=totalSteps<200000?'目標：20萬步':totalSteps<300000?'達標 30萬步！':'🎉 全達標！';
+  document.getElementById('dash-step-goal').textContent=goal;
+  // Nearest
+  if(lastVenueList&&lastVenueList[0]){
+    document.getElementById('dash-nearest-name').textContent=lastVenueList[0].name;
   }
 }
 
-function togglePedometer() {
-  if (!pedoSupported) {
-    showToast('⚠️', '此裝置不支援計步 API，請手動輸入');
-    return;
+// ── Countdown ticker ──────────────────────────────────
+function updateCountdown(){
+  if(!userPos||!lastVenueList||!lastVenueList[0]){return;}
+  const v=lastVenueList[0];
+  if(!v.open)return;
+  const now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+  const [os,oe]=v.open;
+  const hrs=getHoursStatus(v);
+  let rem=0;
+  if(hrs.status!=='closed'){
+    rem=(oe-h-1)*3600+(60-m)*60+(60-s);
+    if(rem<0)rem=0;
+  }else{
+    const nextOpen=os>h?os:os+24;
+    rem=(nextOpen-h-1)*3600+(60-m)*60+(60-s);
   }
-  pedoEnabled ? stopPedometer() : startPedometer();
+  const hh=Math.floor(rem/3600), mm=Math.floor((rem%3600)/60), ss=rem%60;
+  document.getElementById('dash-countdown').textContent=
+    hh>0?`${hh}:${String(mm).padStart(2,'0')}`:`${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
 }
 
-async function startPedometer() {
-  // 請求 DeviceMotion 權限（iOS 13+）
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-    try {
-      const perm = await DeviceMotionEvent.requestPermission();
-      if (perm !== 'granted') { showToast('⚠️', '請允許動作感測器權限'); return; }
-    } catch(e) { showToast('❌', '無法請求感測器權限'); return; }
+// ── Log / Timeline ────────────────────────────────────
+function addVenueLog(v){
+  const perVisit=monthVisits>=36?10:5;
+  monthVisits++; monthCoins+=perVisit;
+  localStorage.setItem('usport_visits',monthVisits);
+  localStorage.setItem('usport_coins',monthCoins);
+  const now=new Date();
+  const dateKey=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  activityDays[dateKey]=(activityDays[dateKey]||'')+',venue';
+  localStorage.setItem('usport_days',JSON.stringify(activityDays));
+  const log={type:'venue',name:v.name,emoji:v.emoji,d:v.d,coins:perVisit,
+    time:`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,date:dateKey};
+  logs.unshift(log); saveLogs(); renderLogs(); buildTimeline(); updateDashboard();
+  showToast('🎉',t('toast_visit',{n:monthVisits}));
+}
+
+function addWalkLog(steps){
+  const now=new Date();
+  const dateKey=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  activityDays[dateKey]=(activityDays[dateKey]||'')+',walk';
+  localStorage.setItem('usport_days',JSON.stringify(activityDays));
+  const log={type:'walk',steps,time:`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,date:dateKey};
+  logs.unshift(log); saveLogs(); renderLogs(); buildTimeline();
+}
+
+function saveLogs(){ localStorage.setItem('usport_logs',JSON.stringify(logs.slice(0,100))); }
+
+let activeLogFilter='all';
+function setLogFilter(f,el){
+  activeLogFilter=f;
+  document.querySelectorAll('.log-filter').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on'); renderLogs();
+}
+
+function renderLogs(){
+  const el=document.getElementById('logs');
+  let src=logs;
+  if(activeLogFilter==='venue') src=logs.filter(l=>l.type==='venue');
+  if(activeLogFilter==='walk') src=logs.filter(l=>l.type==='walk');
+  if(!src.length){el.innerHTML=`<div class="log-empty">${t('log_empty')}</div>`;return;}
+  el.innerHTML=src.slice(0,20).map(l=>{
+    if(l.type==='venue') return `
+      <div class="log">
+        <div class="log-body">${l.emoji} <strong>${l.name}</strong>，距離 ${l.d} m<br/>
+          <span class="log-tag venue">入館集點 +${l.coins}U</span>
+        </div>
+        <div class="log-time">${l.time}</div>
+      </div>`;
+    return `
+      <div class="log walk-log">
+        <div class="log-body">🚶 新增 <strong>${l.steps.toLocaleString()}</strong> 步<br/>
+          <span class="log-tag walk">U-Walk 步行</span>
+        </div>
+        <div class="log-time">${l.time}</div>
+      </div>`;
+  }).join('');
+}
+
+function buildTimeline(){
+  const el=document.getElementById('timeline');
+  const now=new Date(), year=now.getFullYear(), month=now.getMonth();
+  const days=new Date(year,month+1,0).getDate();
+  const firstDay=new Date(year,month,1).getDay();
+  const today=now.getDate();
+  const monthKey=`${year}-${month+1}`;
+  let html=`<div class="tl-title">${year}年${month+1}月 運動紀錄</div><div class="tl-grid">`;
+  // 週標頭
+  ['日','一','二','三','四','五','六'].forEach(d=>html+=`<div class="tl-day" style="color:var(--mu);background:transparent">${d}</div>`);
+  for(let i=0;i<firstDay;i++) html+=`<div class="tl-day"></div>`;
+  for(let d=1;d<=days;d++){
+    const key=`${year}-${month+1}-${d}`;
+    const act=activityDays[key]||'';
+    const hasV=act.includes('venue'), hasW=act.includes('walk');
+    const cls=hasV&&hasW?'has-both':hasV?'has-venue':hasW?'has-walk':'';
+    const isToday=d===today?'today':'';
+    html+=`<div class="tl-day ${cls} ${isToday}">${d}</div>`;
   }
+  html+='</div>';
+  html+=`<div class="tl-legend">
+    <div><span class="tl-dot" style="background:rgba(255,107,53,.4)"></span><span style="font-size:10px;color:var(--mu)">入館</span></div>
+    <div><span class="tl-dot" style="background:rgba(255,176,32,.4)"></span><span style="font-size:10px;color:var(--mu)">步行</span></div>
+    <div><span class="tl-dot" style="background:linear-gradient(135deg,rgba(255,107,53,.4),rgba(255,176,32,.4))"></span><span style="font-size:10px;color:var(--mu)">雙記錄</span></div>
+  </div>`;
+  el.innerHTML=html;
+}
 
-  pedoEnabled = true;
-  updatePedoUI(true);
-  showToast('🦶', '計步 API 已啟用');
+// ── Pedometer ─────────────────────────────────────────
+function detectPedo(){
+  const btn=document.getElementById('pedo-btn');
+  const supported=!!window.DeviceMotionEvent||typeof Pedometer!=='undefined';
+  if(!supported){btn.textContent='⚠️ 此裝置不支援計步 API';btn.disabled=true;btn.style.opacity='.4';}
+}
 
-  // 嘗試使用 Sensor API（Pedometer，Chrome Android）
-  if (typeof Pedometer !== 'undefined') {
-    try {
-      const sensor = new Pedometer();
-      sensor.addEventListener('reading', () => {
-        syncPedometerData(sensor.steps);
-      });
-      sensor.start();
-      pedoWatchId = sensor;
-      stepSource = 'api';
-      updateSourceBadge();
-      return;
-    } catch(e) {}
+function togglePedometer(){
+  const supported=!!window.DeviceMotionEvent||typeof Pedometer!=='undefined';
+  if(!supported){showToast('⚠️',t('toast_pedo_ns'));return;}
+  pedoEnabled?stopPedometer():startPedometer();
+}
+
+async function startPedometer(){
+  if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
+    try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')return;}catch(e){return;}
   }
-
-  // Fallback: 用 DeviceMotion 做簡易步伐估算
-  let lastAcc = null, stepBuf = 0, lastStep = 0;
-  const THRESHOLD = 1.8; // 加速度差值觸發閾值
-
-  pedoWatchId = (e) => {
-    const acc = e.accelerationIncludingGravity;
-    if (!acc) return;
-    const mag = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
-    if (lastAcc !== null) {
-      const diff = Math.abs(mag - lastAcc);
-      if (diff > THRESHOLD) {
-        const now = Date.now();
-        if (now - lastStep > 350) { // 每步最少 350ms
-          lastStep = now;
-          stepBuf++;
-          if (stepBuf % 1 === 0) { // 每步即時同步
-            syncPedometerData(totalSteps + 1);
-          }
-        }
-      }
+  pedoEnabled=true; updatePedoUI(true); showToast('🦶',t('toast_pedo_on'));
+  if(typeof Pedometer!=='undefined'){
+    try{const s=new Pedometer();s.addEventListener('reading',()=>syncPedometerData(s.steps));s.start();pedoWatchId=s;stepSource='api';updateSrcBadge();return;}catch(e){}
+  }
+  let lastAcc=null, lastStep=0;
+  pedoWatchId=e=>{
+    const a=e.accelerationIncludingGravity;if(!a)return;
+    const mag=Math.sqrt(a.x**2+a.y**2+a.z**2);
+    if(lastAcc!==null&&Math.abs(mag-lastAcc)>1.8){
+      const now=Date.now();if(now-lastStep>350){lastStep=now;syncPedometerData(totalSteps+1);}
     }
-    lastAcc = mag;
+    lastAcc=mag;
   };
-
-  window.addEventListener('devicemotion', pedoWatchId);
-  stepSource = 'api';
-  updateSourceBadge();
+  window.addEventListener('devicemotion',pedoWatchId);
+  stepSource='api'; updateSrcBadge();
 }
 
-function stopPedometer() {
-  pedoEnabled = false;
-  if (pedoWatchId) {
-    if (typeof pedoWatchId === 'function') {
-      window.removeEventListener('devicemotion', pedoWatchId);
-    } else if (pedoWatchId.stop) {
-      pedoWatchId.stop();
-    }
-    pedoWatchId = null;
+function stopPedometer(){
+  pedoEnabled=false;
+  if(pedoWatchId){
+    if(typeof pedoWatchId==='function') window.removeEventListener('devicemotion',pedoWatchId);
+    else if(pedoWatchId.stop) pedoWatchId.stop();
+    pedoWatchId=null;
   }
-  stepSource = totalSteps > 0 ? 'manual' : 'none';
-  updatePedoUI(false);
-  updateSourceBadge();
-  showToast('⏸', '計步 API 已停用');
+  stepSource=totalSteps>0?'manual':'none';
+  updatePedoUI(false); updateSrcBadge(); showToast('⏸',t('toast_pedo_off'));
 }
 
-function syncPedometerData(steps) {
-  if (steps <= totalSteps) {
-    // DeviceMotion fallback：累加
-    totalSteps++;
-  } else {
-    totalSteps = steps;
-  }
-  saveSteps();
-  updateWalk(totalSteps);
+function syncPedometerData(steps){
+  totalSteps=steps<=totalSteps?totalSteps+1:steps;
+  saveSteps(); updateWalk(totalSteps); updateDashboard();
 }
 
-function updatePedoUI(on) {
-  const btn = document.getElementById('pedo-toggle-btn');
-  if (on) {
-    btn.textContent = '⏹ 停用計步 API';
-    btn.classList.remove('off');
-  } else {
-    btn.textContent = '🦶 啟用裝置計步 API';
-    btn.classList.add('off');
-  }
+function updatePedoUI(on){
+  const btn=document.getElementById('pedo-btn');
+  btn.textContent=on?t('pedo_stop'):t('pedo_start');
+  btn.classList.toggle('off',!on);
 }
 
-function updateSourceBadge() {
-  const el = document.getElementById('pedo-source');
-  if (stepSource === 'api') {
-    el.className = 'pedo-source api';
-    el.textContent = '● API 連接中';
-  } else if (stepSource === 'manual') {
-    el.className = 'pedo-source manual';
-    el.textContent = '✎ 手動輸入';
-  } else {
-    el.className = 'pedo-source none';
-    el.textContent = '未連接';
-  }
+function updateSrcBadge(){
+  const el=document.getElementById('pedo-source');
+  const map={api:{cls:'api',key:'src_api'},manual:{cls:'manual',key:'src_manual'},none:{cls:'none',key:'src_none'}};
+  const m=map[stepSource]||map.none;
+  el.className='src-badge '+m.cls; el.textContent=t(m.key);
 }
 
-// ════════════════════════════
-// 手動步數輸入
-// ════════════════════════════
-function addManualSteps() {
-  const input = document.getElementById('manual-input');
-  const val = parseInt(input.value);
-  if (isNaN(val) || val <= 0) { showToast('⚠️', '請輸入有效步數'); return; }
-  if (val > 99999) { showToast('⚠️', '單次輸入上限 99,999 步'); return; }
-  totalSteps += val;
-  if (totalSteps > 300000) totalSteps = 300000;
-  input.value = '';
-  stepSource = 'manual';
-  updateSourceBadge();
-  saveSteps();
-  updateWalk(totalSteps);
-  showToast('✅', `已加入 ${val.toLocaleString()} 步`);
+function addManualSteps(){
+  const inp=document.getElementById('manual-input');
+  const val=parseInt(inp.value);
+  if(isNaN(val)||val<=0){showToast('⚠️','請輸入有效步數');return;}
+  if(val>99999){showToast('⚠️','單次上限 99,999 步');return;}
+  totalSteps=Math.min(totalSteps+val,300000);
+  inp.value=''; stepSource='manual'; updateSrcBadge();
+  saveSteps(); updateWalk(totalSteps); updateDashboard();
+  addWalkLog(val); showToast('✅',t('toast_added',{n:val.toLocaleString()}));
 }
 
-function quickAdd(n) {
-  totalSteps += n;
-  if (totalSteps > 300000) totalSteps = 300000;
-  if (stepSource === 'none') { stepSource = 'manual'; updateSourceBadge(); }
-  saveSteps();
-  updateWalk(totalSteps);
-  showToast('🚶', `＋${(n/1000).toFixed(0)}K 步，共 ${totalSteps.toLocaleString()} 步`);
+function quickAdd(n){
+  totalSteps=Math.min(totalSteps+n,300000);
+  if(stepSource==='none'){stepSource='manual';updateSrcBadge();}
+  saveSteps(); updateWalk(totalSteps); updateDashboard();
+  addWalkLog(n);
+  showToast('🚶',t('toast_quick',{k:n/1000,t:totalSteps.toLocaleString()}));
 }
 
-function resetSteps() {
-  if (!confirm('確定要重設本月所有步數嗎？')) return;
-  totalSteps = 0;
-  stepSource = 'none';
-  updateSourceBadge();
-  saveSteps();
-  updateWalk(0);
-  showToast('🗑', '已重設步數');
+function resetSteps(){
+  if(!confirm(t('confirm_reset')))return;
+  totalSteps=0; stepSource='none'; updateSrcBadge();
+  saveSteps(); updateWalk(0); updateDashboard(); showToast('🗑',t('toast_reset'));
 }
 
-function saveSteps() {
-  localStorage.setItem('usport_steps', totalSteps);
+function saveSteps(){ localStorage.setItem('usport_steps',totalSteps); }
+
+function updateWalk(steps){
+  document.getElementById('step-num').textContent=steps.toLocaleString();
+  const circ=2*Math.PI*57;
+  document.getElementById('ring-prog').style.strokeDashoffset=circ*(1-Math.min(steps/300000,1));
+  document.getElementById('bar1').style.width=Math.min(steps/200000*100,100)+'%';
+  document.getElementById('bar2').style.width=Math.min(steps/300000*100,100)+'%';
+  document.getElementById('goal1').classList.toggle('done',steps>=200000);
+  document.getElementById('goal2').classList.toggle('done',steps>=300000);
+  // Walk coin rewards to dashboard
+  let walkCoins=0;
+  if(steps>=200000) walkCoins+=30;
+  if(steps>=300000) walkCoins+=50;
+  // (just display logic, actual coins tracked separately)
 }
 
-// ── Enter 鍵送出
-document.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('manual-input');
-  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') addManualSteps(); });
-});
-
-// ════════════════════════════
-// 步數環 UI 更新
-// ════════════════════════════
-function updateWalk(steps) {
-  document.getElementById('step-num').textContent = steps.toLocaleString();
-  const circ = 2 * Math.PI * 57; // r=57 → circumference≈358.14
-  const pct  = Math.min(steps / 300000, 1);
-  document.getElementById('ring-prog').style.strokeDashoffset = circ * (1 - pct);
-  document.getElementById('bar1').style.width = Math.min(steps / 200000 * 100, 100) + '%';
-  document.getElementById('bar2').style.width = Math.min(steps / 300000 * 100, 100) + '%';
+// ── Canvas Map ────────────────────────────────────────
+function initMap(){
+  mapEl=document.getElementById('map-canvas'); mapCtx=mapEl.getContext('2d');
+  const p=mapEl.parentElement; mapEl.width=p.clientWidth; mapEl.height=p.clientHeight;
+  window.addEventListener('resize',()=>{mapEl.width=mapEl.parentElement.clientWidth;mapEl.height=mapEl.parentElement.clientHeight;});
 }
-
-// ════════════════════════════
-// Canvas 地圖
-// ════════════════════════════
-function initMap() {
-  mapEl  = document.getElementById('map-canvas');
-  mapCtx = mapEl.getContext('2d');
-  const p = mapEl.parentElement;
-  mapEl.width  = p.clientWidth;
-  mapEl.height = p.clientHeight;
-  window.addEventListener('resize', () => {
-    mapEl.width  = mapEl.parentElement.clientWidth;
-    mapEl.height = mapEl.parentElement.clientHeight;
+function startMapLoop(){ (function loop(){drawMap();mapRAF=requestAnimationFrame(loop);})(); }
+function drawMap(){
+  if(!mapCtx||!userPos)return;
+  const W=mapEl.width,H=mapEl.height,ctx=mapCtx;
+  ctx.clearRect(0,0,W,H);
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#1C0A00');bg.addColorStop(1,'#1A1A2E');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,107,53,0.06)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=36){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const lS=0.04,gS=0.06,minL=userPos.lat-lS/2,minG=userPos.lng-gS/2;
+  const xy=(lat,lng)=>({x:((lng-minG)/gS)*W,y:H-((lat-minL)/lS)*H});
+  VENUES.forEach(v=>{
+    const p=xy(v.lat,v.lng),d=haversine(userPos,{lat:v.lat,lng:v.lng}),near=d<=v.r;
+    ctx.beginPath();ctx.arc(p.x,p.y,near?22:16,0,Math.PI*2);
+    ctx.fillStyle=near?'rgba(255,107,53,.22)':'rgba(255,255,255,.05)';ctx.fill();
+    if(near){ctx.strokeStyle='rgba(255,107,53,.7)';ctx.lineWidth=1.5;ctx.stroke();}
+    ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(v.emoji,p.x,p.y);
+    if(d<=2000){ctx.fillStyle=near?'rgba(255,208,96,.9)':'rgba(255,255,255,.3)';ctx.font='bold 8px sans-serif';ctx.fillText(fmtDist(d),p.x,p.y+18);}
   });
+  const up=xy(userPos.lat,userPos.lng),pulse=Math.sin(Date.now()/500)*.5+.5;
+  ctx.beginPath();ctx.arc(up.x,up.y,8+pulse*13,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(255,107,53,${.55-pulse*.45})`;ctx.lineWidth=2;ctx.stroke();
+  const dg=ctx.createRadialGradient(up.x,up.y,0,up.x,up.y,7);
+  dg.addColorStop(0,'#FFD060');dg.addColorStop(1,'#FF6B35');
+  ctx.beginPath();ctx.arc(up.x,up.y,7,0,Math.PI*2);ctx.fillStyle=dg;ctx.fill();
+  ctx.strokeStyle='#1C0A00';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+  ctx.fillText('你在這',up.x,up.y-17);
 }
 
-function startMapLoop() {
-  function loop() { drawMap(); mapRAF = requestAnimationFrame(loop); }
-  loop();
-}
-
-function drawMap() {
-  if (!mapCtx || !userPos) return;
-  const W = mapEl.width, H = mapEl.height, ctx = mapCtx;
-  ctx.clearRect(0, 0, W, H);
-
-  // 背景
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#1C0A00'); bg.addColorStop(1, '#1A1A2E');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-
-  // 格線
-  ctx.strokeStyle = 'rgba(255,107,53,0.06)'; ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 36) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 36) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-
-  // 地圖投影（以使用者為中心）
-  const latSpan = 0.04, lngSpan = 0.06;
-  const minLat = userPos.lat - latSpan / 2;
-  const minLng = userPos.lng - lngSpan / 2;
-  const toXY = (lat, lng) => ({
-    x: ((lng - minLng) / lngSpan) * W,
-    y: H - ((lat - minLat) / latSpan) * H
-  });
-
-  // 場館 pins
-  VENUES.forEach(v => {
-    const p = toXY(v.lat, v.lng);
-    const d = haversine(userPos, { lat: v.lat, lng: v.lng });
-    const near = d <= v.r;
-
-    // 光暈圓
-    ctx.beginPath(); ctx.arc(p.x, p.y, near ? 22 : 16, 0, Math.PI * 2);
-    ctx.fillStyle = near ? 'rgba(255,107,53,0.22)' : 'rgba(255,255,255,0.05)';
-    ctx.fill();
-    if (near) {
-      ctx.strokeStyle = 'rgba(255,107,53,0.7)'; ctx.lineWidth = 1.5; ctx.stroke();
-    }
-
-    // Emoji
-    ctx.font = '15px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(v.emoji, p.x, p.y);
-
-    // 距離標籤（僅顯示 2km 內）
-    if (d <= 2000) {
-      ctx.fillStyle = near ? 'rgba(255,176,32,0.9)' : 'rgba(255,255,255,0.35)';
-      ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(fmtDist(d), p.x, p.y + 18);
-    }
-  });
-
-  // 使用者位置
-  const up = toXY(userPos.lat, userPos.lng);
-  const pulse = Math.sin(Date.now() / 500) * 0.5 + 0.5;
-
-  ctx.beginPath(); ctx.arc(up.x, up.y, 8 + pulse * 13, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(255,107,53,${0.55 - pulse * 0.45})`; ctx.lineWidth = 2; ctx.stroke();
-
-  const dotG = ctx.createRadialGradient(up.x, up.y, 0, up.x, up.y, 7);
-  dotG.addColorStop(0, '#FFD060'); dotG.addColorStop(1, '#FF6B35');
-  ctx.beginPath(); ctx.arc(up.x, up.y, 7, 0, Math.PI * 2);
-  ctx.fillStyle = dotG; ctx.fill();
-  ctx.strokeStyle = '#1C0A00'; ctx.lineWidth = 2; ctx.stroke();
-
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('你在這', up.x, up.y - 17);
-}
-
-// ════════════════════════════
-// Toast
-// ════════════════════════════
-function showToast(icon, msg) {
-  document.getElementById('t-icon').textContent = icon;
-  document.getElementById('t-msg').textContent  = msg;
-  const el = document.getElementById('toast');
-  el.classList.add('show');
-  clearTimeout(el._tid);
-  el._tid = setTimeout(() => el.classList.remove('show'), 3000);
+// ── Toast ─────────────────────────────────────────────
+function showToast(icon,msg){
+  document.getElementById('t-icon').textContent=icon;
+  document.getElementById('t-msg').textContent=msg;
+  const el=document.getElementById('toast');
+  el.classList.add('show'); clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),3000);
 }
 </script>
 </body>
