@@ -1,6 +1,6 @@
 // U-Sport 集點小幫手 · Service Worker 2026
 const CACHE = 'usport-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const ASSETS = ['/u-coin/', '/u-coin/index.html', '/u-coin/manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
