@@ -867,7 +867,7 @@ window.addEventListener('beforeinstallprompt', e=>{
 async function registerSW(){
   if('serviceWorker' in navigator){
     try{
-      const reg = await navigator.serviceWorker.register('sw.js');
+      const reg = await navigator.serviceWorker.register('./sw.js', {scope: './'});
       // Periodic Background Sync
       if('periodicSync' in reg){
         try{
@@ -937,13 +937,42 @@ function filterVenues(){
 async function toggleTracking(){ isTracking?stopTracking():await startTracking(); }
 
 async function startTracking(){
-  const np=await Notification.requestPermission();
+  let np = Notification.permission;
+  if(np === 'denied'){
+    showToast('🔔','通知已被封鎖，請至瀏覽器設定中手動開啟通知權限');
+    // Show a help banner
+    const banner = document.createElement('div');
+    banner.style.cssText='position:fixed;top:calc(var(--safe-t)+10px);left:50%;transform:translateX(-50%);width:calc(100%-32px);max-width:448px;background:#1C0A00;border:1px solid var(--orange);border-radius:14px;padding:14px 16px;z-index:500;font-size:13px;color:rgba(255,255,255,.85);line-height:1.6;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4);';
+    banner.innerHTML='🔔 <b>通知權限已封鎖</b><br/>請至 <b>瀏覽器設定 → 網站設定 → 通知</b> 中允許本站通知，再重新整理頁面。<br/><button onclick="this.parentElement.remove()" style="margin-top:8px;padding:6px 14px;border:none;border-radius:8px;background:var(--orange);color:#fff;font-weight:700;cursor:pointer;">知道了</button>';
+    document.body.appendChild(banner);
+    setTimeout(()=>banner.remove&&banner.remove(), 10000);
+  } else {
+    np = await Notification.requestPermission();
+  }
   if(np!=='granted'){showToast('⚠️',t('toast_perm'));return;}
   if(!('geolocation' in navigator)){showToast('❌',t('toast_no_geo'));return;}
   showToast('📍',t('toast_geo'));
   navigator.geolocation.getCurrentPosition(
     pos=>{userPos={lat:pos.coords.latitude,lng:pos.coords.longitude};activate();},
-    ()=>{userPos={lat:25.0408,lng:121.5654};showToast('🗺️',t('toast_demo'));activate();},
+    ()=>{
+      const saved = localStorage.getItem('usport_custom_loc');
+      if(saved){ try{ const p=JSON.parse(saved); userPos={lat:p.lat,lng:p.lng}; showToast('🗺️','使用上次位置'); activate(); return; }catch(e){} }
+      userPos={lat:25.0408,lng:121.5654};
+      showToast('🗺️',t('toast_demo'));
+      activate();
+      setTimeout(()=>{
+        const input=prompt('定位失敗。輸入「緯度,經度」設定自訂位置（留空使用預設台北信義）：');
+        if(input&&input.includes(',')){
+          const [la,lo]=input.split(',').map(Number);
+          if(!isNaN(la)&&!isNaN(lo)){
+            userPos={lat:la,lng:lo};
+            localStorage.setItem('usport_custom_loc',JSON.stringify({lat:la,lng:lo}));
+            showToast('📍','已儲存自訂位置');
+            updateDashboard(); renderVenues(lastVenueList);
+          }
+        }
+      },1500);
+    },
     {enableHighAccuracy:true,timeout:8000}
   );
 }
@@ -1229,6 +1258,7 @@ function togglePedometer(){
 }
 
 async function startPedometer(){
+  try {
   if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
     try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')return;}catch(e){return;}
   }
@@ -1246,6 +1276,12 @@ async function startPedometer(){
     lastAcc=mag;
   };
   window.addEventListener('devicemotion',pedoWatchId);
+  } catch(err) {
+    pedoEnabled=false; updatePedoUI(false);
+    showToast('⚠️', t('toast_pedo_ns'));
+    console.warn('Pedometer start failed:', err);
+    return;
+  }
   stepSource='api'; updateSrcBadge();
 }
 
@@ -1297,8 +1333,27 @@ function quickAdd(n){
   showToast('🚶',t('toast_quick',{k:n/1000,t:totalSteps.toLocaleString()}));
 }
 
+function showConfirmModal(msg, onConfirm){
+  // Remove existing modal if any
+  const existing = document.getElementById('confirm-modal');
+  if(existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'confirm-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+  overlay.innerHTML = `
+    <div style="background:var(--bg2);border-radius:18px;padding:24px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4);">
+      <p style="font-size:15px;color:var(--ink);line-height:1.6;margin-bottom:20px;">\${msg}</p>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('confirm-modal').remove();" style="flex:1;padding:12px;border:1.5px solid var(--bdr);border-radius:12px;background:var(--bg);color:var(--mu);font-size:14px;font-weight:700;cursor:pointer;">取消</button>
+        <button id="confirm-ok-btn" style="flex:1;padding:12px;border:none;border-radius:12px;background:var(--grad-main);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">確定</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('confirm-ok-btn').onclick = ()=>{ overlay.remove(); onConfirm(); };
+}
+
 function resetSteps(){
-  if(!confirm(t('confirm_reset')))return;
+  showConfirmModal(t('confirm_reset'), ()=>{
   totalSteps=0; stepSource='none'; updateSrcBadge();
   saveSteps(); updateWalk(0); updateDashboard(); showToast('🗑',t('toast_reset'));
 }
